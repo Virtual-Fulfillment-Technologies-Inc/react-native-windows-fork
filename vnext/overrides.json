@@ -201,6 +201,13 @@
     },
     {
       "type": "patch",
+      "file": "ReactCommon/TEMP_UntilReactCommonUpdate/react/renderer/components/view/BaseViewProps.cpp",
+      "baseFile": "packages/react-native/ReactCommon/react/renderer/components/view/BaseViewProps.cpp",
+      "baseHash": "7d18752821bfda953722017ea05bde14a2323123",
+      "issue": 15287
+    },
+    {
+      "type": "patch",
       "file": "ReactCommon/TEMP_UntilReactCommonUpdate/react/renderer/components/view/conversions.h",
       "baseFile": "packages/react-native/ReactCommon/react/renderer/components/view/conversions.h",
       "baseHash": "3487b9dcde51614425687a31b10923c67a2f1d52",
