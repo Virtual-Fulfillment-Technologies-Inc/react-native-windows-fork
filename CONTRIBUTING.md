@@ -129,7 +129,6 @@ React Native Windows follows Microsoft's Secure Development Lifecycle (SDL) requ
 
 - **Attack Surface Analyzer (ASA)** runs automatically on every PR to detect security regressions during the build process. This ensures that builds don't inadvertently weaken the OS security configuration.
 - If ASA detects changes in your PR, review the artifacts in the PR build to understand the security implications.
-- For more information about ASA, see [Attack Surface Analyzer documentation](https://github.com/microsoft/react-native-windows/blob/main/docs/attack-surface-analyzer.md).
 
 Most changes won't trigger ASA findings, but if yours does, the documentation explains how to review and address the findings.
 
