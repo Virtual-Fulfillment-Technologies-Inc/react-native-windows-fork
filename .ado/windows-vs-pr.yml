@@ -5,7 +5,6 @@
 # Once all branches use pr-pipeline.yml, this file can be deleted.
 #
 
-# remove this comment next time
 name: $(Date:yyyyMMdd).$(Rev:r)
 
 trigger: none
