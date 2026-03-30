@@ -188,7 +188,7 @@ jobs:
               inputs:
                 targetType: filePath # filePath | inline
                 filePath: $(Build.SourcesDirectory)\vnext\Scripts\Tracing\Start-Tracing.ps1
-              pwsh: true
+                pwsh: true
 
             - template: ../templates/run-windows-with-certificates.yml
               parameters:
@@ -225,7 +225,7 @@ jobs:
                 targetType: filePath # filePath | inline
                 filePath: $(Build.SourcesDirectory)\vnext\Scripts\Tracing\Stop-Tracing.ps1
                 arguments: -NoAnalysis -outputFolder $(Build.StagingDirectory)/Tracing
-              pwsh: true
+                pwsh: true
               condition: true
 
             - task: CopyFiles@2
