@@ -13,7 +13,7 @@ steps:
     - task: NodeTool@0
       displayName: Set Node Version
       inputs:
-        versionSpec: '22.x'
+        versionSpec: '24.x'
 
   - template: yarn-install.yml
     parameters:

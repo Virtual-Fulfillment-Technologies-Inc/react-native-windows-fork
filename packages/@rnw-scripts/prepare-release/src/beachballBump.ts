@@ -25,7 +25,7 @@ export function hasChangeFiles(repoRoot: string): boolean {
   }
 
   const entries = fs.readdirSync(changeDir);
-  return entries.some(entry => entry.endsWith('.json'));
+  return entries.some((entry: string) => entry.endsWith('.json'));
 }
 
 /**
