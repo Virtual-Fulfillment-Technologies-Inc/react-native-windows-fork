@@ -336,7 +336,6 @@ extends:
             # Stage shipping artifacts (copies to staging dir, does not publish)
             - template: .ado/templates/publish-build-artifacts.yml@self
               parameters:
-                oneESMode: true
                 artifactName: Desktop
                 buildPlatform: ${{ matrix.BuildPlatform }}
                 buildConfiguration: ${{ matrix.BuildConfiguration }}
@@ -402,7 +401,6 @@ extends:
             - ${{ if eq(matrix.UseFabric, true) }}:
               - template: .ado/templates/publish-build-artifacts.yml@self
                 parameters:
-                  oneESMode: true
                   artifactName: ReactWindowsFabric
                   buildPlatform: ${{ matrix.BuildPlatform }}
                   buildConfiguration: ${{ matrix.BuildConfiguration }}
@@ -414,7 +412,6 @@ extends:
             - ${{ else }}:
               - template: .ado/templates/publish-build-artifacts.yml@self
                 parameters:
-                  oneESMode: true
                   artifactName: ReactWindows
                   buildPlatform: ${{ matrix.BuildPlatform }}
                   buildConfiguration: ${{ matrix.BuildConfiguration }}

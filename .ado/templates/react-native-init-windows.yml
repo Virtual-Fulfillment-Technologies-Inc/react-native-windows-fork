@@ -136,7 +136,6 @@ steps:
 
   - template: upload-build-logs.yml
     parameters:
-      oneESMode: true
       buildLogDirectory: '$(Build.BinariesDirectory)\${{ parameters.platform }}\${{ parameters.configuration }}\BuildLogs'
 
   # Only run the following on fabric apps

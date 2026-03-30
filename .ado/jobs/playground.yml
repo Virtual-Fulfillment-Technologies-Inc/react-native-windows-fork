@@ -165,7 +165,6 @@ jobs:
 
               - template: ../templates/upload-build-logs.yml
                 parameters:
-                  oneESMode: true
                   artifactName: 'DebugTest $(Agent.JobName)-$(System.JobAttempt)'
                   buildLogDirectory: '$(Build.StagingDirectory)\DebugTestLogs'
 

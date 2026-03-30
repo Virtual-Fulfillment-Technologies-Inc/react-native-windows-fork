@@ -117,13 +117,6 @@ jobs:
                 arguments: -NoAnalysis -outputFolder $(Build.StagingDirectory)/Tracing
               condition: always()
 
-            - task: PublishBuildArtifacts@1
-              displayName: Upload traces
-              inputs:
-                pathtoPublish: '$(Build.StagingDirectory)/Tracing'
-                artifactName: 'Traces - $(Agent.JobName)-$(System.JobAttempt)'
-              condition: always()
-
             - task: CopyFiles@2
               displayName: Copy snapshots
               inputs:
@@ -140,23 +133,37 @@ jobs:
                 contents: AppPackages\**
               condition: failed()
 
-            - task: PublishPipelineArtifact@1
-              displayName: "Publish Artifact: RNTesterApp"
-              inputs:
-                artifactName: RNTesterApp-${{ matrix.Name }}-$(System.JobAttempt)
-                targetPath: $(Build.StagingDirectory)/RNTesterApp
-              condition: failed()
-
-            - task: PublishPipelineArtifact@1
-              displayName: "Publish Artifact: Snapshots"
-              inputs:
-                artifactName: Snapshots - RNTesterApp-${{ matrix.Name }}-$(System.JobAttempt)
-                targetPath: $(Build.StagingDirectory)/snapshots
-              condition: failed()
-
             - template: ../templates/upload-build-logs.yml
               parameters:
                 buildLogDirectory: '$(BuildLogDirectory)'
+
+          templateContext:
+            outputs:
+            - output: pipelineArtifact
+              displayName: 'Upload traces'
+              condition: always()
+              targetPath: $(Build.StagingDirectory)/Tracing
+              artifactName: Traces - $(Agent.JobName)-$(System.JobAttempt)
+            - output: pipelineArtifact
+              displayName: 'Publish Artifact: RNTesterApp'
+              condition: failed()
+              targetPath: $(Build.StagingDirectory)/RNTesterApp
+              artifactName: RNTesterApp-${{ matrix.Name }}-$(System.JobAttempt)
+            - output: pipelineArtifact
+              displayName: 'Publish Artifact: Snapshots'
+              condition: failed()
+              targetPath: $(Build.StagingDirectory)/snapshots
+              artifactName: Snapshots - RNTesterApp-${{ matrix.Name }}-$(System.JobAttempt)
+            - output: pipelineArtifact
+              displayName: 'Upload build logs'
+              condition: succeededOrFailed()
+              targetPath: $(BuildLogDirectory)
+              artifactName: Build logs - $(Agent.JobName)-$(System.JobAttempt)
+            - output: pipelineArtifact
+              displayName: 'Upload crash dumps'
+              condition: and(succeededOrFailed(), eq(variables.HasCrashDumps, 'True'))
+              targetPath: '$(CrashDumpRootPath)'
+              artifactName: Crash dumps - $(Agent.JobName)-$(System.JobAttempt)
   - ${{ each config in parameters.buildMatrix }}:
     - ${{ if eq(config.BuildEnvironment, parameters.buildEnvironment) }}:
       - ${{ each matrix in config.Matrix }}:
@@ -246,7 +253,6 @@ jobs:
 
             - template: ../templates/upload-build-logs.yml
               parameters:
-                oneESMode: true
                 buildLogDirectory: '$(BuildLogDirectory)'
 
           templateContext:

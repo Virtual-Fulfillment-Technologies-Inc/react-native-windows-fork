@@ -68,7 +68,6 @@ steps:
       solutionName: ReactWindows-Desktop.sln
       buildPlatform: ${{ parameters.buildPlatform }}
       buildConfiguration: ${{ parameters.buildConfiguration }}
-      oneESMode: true
       msbuildArguments: /p:ForceImportAfterCppTargets=$(Build.SourcesDirectory)\vnext\PropertySheets\CIBuildOptimizations.props
 
   - ${{ if and(eq(parameters.buildConfiguration, 'Debug'), eq(parameters.buildPlatform, 'x64')) }}:
