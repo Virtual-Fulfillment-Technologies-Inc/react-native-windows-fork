@@ -115,14 +115,14 @@ jobs:
                 targetType: filePath # filePath | inline
                 filePath: $(Build.SourcesDirectory)\vnext\Scripts\Tracing\Stop-Tracing.ps1
                 arguments: -NoAnalysis -outputFolder $(Build.StagingDirectory)/Tracing
-              condition: true
+              condition: always()
 
             - task: PublishBuildArtifacts@1
               displayName: Upload traces
               inputs:
                 pathtoPublish: '$(Build.StagingDirectory)/Tracing'
                 artifactName: 'Traces - $(Agent.JobName)-$(System.JobAttempt)'
-              condition: true
+              condition: always()
 
             - task: CopyFiles@2
               displayName: Copy snapshots
@@ -226,7 +226,7 @@ jobs:
                 filePath: $(Build.SourcesDirectory)\vnext\Scripts\Tracing\Stop-Tracing.ps1
                 arguments: -NoAnalysis -outputFolder $(Build.StagingDirectory)/Tracing
                 pwsh: true
-              condition: true
+              condition: always()
 
             - task: CopyFiles@2
               displayName: Copy Fabric snapshots
@@ -253,7 +253,7 @@ jobs:
             outputs:
             - output: pipelineArtifact
               displayName: 'Upload traces'
-              condition: true
+              condition: always()
               targetPath: $(Build.StagingDirectory)/Tracing
               artifactName: Traces - $(Agent.JobName)-$(System.JobAttempt)
             - output: pipelineArtifact
