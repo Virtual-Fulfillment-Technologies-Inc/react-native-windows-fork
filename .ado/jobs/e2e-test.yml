@@ -180,7 +180,7 @@ jobs:
                   configuration: Release
                   buildEnvironment: ${{ config.buildEnvironment }}
 
-            - pwsh: |
+              - pwsh: |
                   Write-Host "##vso[task.setvariable variable=BuildLogDirectory]$(Build.BinariesDirectory)\${{ matrix.BuildPlatform }}\BuildLogs"
                 displayName: Set BuildLogDirectory
 
@@ -248,7 +248,7 @@ jobs:
 
               - template: ../templates/upload-build-logs.yml
                 parameters:
-                oneESMode: true
+                  oneESMode: true
                   buildLogDirectory: '$(BuildLogDirectory)'
 
           templateContext:
