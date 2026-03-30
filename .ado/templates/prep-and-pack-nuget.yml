@@ -1,6 +1,9 @@
 parameters:
   - name: artifactName
     type: string
+  - name: artifactName2
+    type: string
+    default: ''
   - name: slices
     type: object
 
@@ -56,6 +59,13 @@ steps:
       inputs:
         artifact: ${{ parameters.artifactName }}.${{ slice.platform }}.${{ slice.configuration }}
         path: ${{parameters.nugetroot}}/${{ parameters.artifactName }}/${{ slice.platform }}/${{ slice.configuration }}
+
+    - ${{ if ne(parameters.artifactName2, '') }}:
+      - task: DownloadPipelineArtifact@2
+        displayName: 'Download ${{ parameters.artifactName2 }}.${{ slice.platform }}.${{ slice.configuration }}'
+        inputs:
+          artifact: ${{ parameters.artifactName2 }}.${{ slice.platform }}.${{ slice.configuration }}
+          path: ${{parameters.nugetroot}}/${{ parameters.artifactName2 }}/${{ slice.platform }}/${{ slice.configuration }}
 
   - pwsh: yarn build
     displayName: Run yarn build
