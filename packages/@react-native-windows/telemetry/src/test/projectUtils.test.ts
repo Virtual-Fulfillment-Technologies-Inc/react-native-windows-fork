@@ -75,7 +75,7 @@ test('configToProjectInfo() works with playground project info', async () => {
   const projectInfo = info as projectUtils.AppProjectInfo;
 
   expect(projectInfo.id).toBe(
-    projectUtils.getProjectId('@rnw-scripts/playground'),
+    projectUtils.getProjectId('playground'),
   );
   expect(projectInfo.platforms).toStrictEqual(['windows']);
   expect(projectInfo.rnwLang).toBe('cpp');
