@@ -31,12 +31,36 @@ try
     }
 
     # Re-run solutions that build with UseExperimentalWinUI3
-    # Note: ReactWindows-Desktop.sln is NOT included here because ExperimentalFeatures.props
-    # already sets UseExperimentalWinUI3=false for SolutionName=ReactWindows-Desktop.
+    # (sets UseExperimentalWinUI3 which selects the experimental WinUI3 version)
     $experimentalSolutions = @("playground-composition.sln", "Microsoft.ReactNative.sln", "Microsoft.ReactNative.CppOnly.slnf");
     $($packagesSolutions; $vnextSolutions) | Where-Object { $experimentalSolutions -contains $_.Name } | Foreach-Object {
         Write-Host Restoring $_.FullName with UseExperimentalWinUI3=true
         & msbuild /t:Restore /p:RestoreForceEvaluate=true /p:UseExperimentalWinUI3=true $_.FullName
+    }
+
+    # Re-run Desktop solution with Fabric settings to match CI Fabric Desktop builds.
+    # The CI enable-fabric-experimental-feature.yml template appends UseFabric=true and
+    # UseWinUI3=true to ExperimentalFeatures.props. We replicate that here so the lock
+    # files contain deps for both Fabric and non-Fabric Desktop builds.
+    $fabricDesktopSolutions = @("ReactWindows-Desktop.sln");
+    $propsFile = Join-Path $RepoRoot "vnext\ExperimentalFeatures.props"
+    $propsBackup = "$propsFile.bak"
+    Copy-Item $propsFile $propsBackup
+    try {
+        # Append Fabric properties — same as enable-fabric-experimental-feature.yml
+        $content = Get-Content $propsFile -Raw
+        $fabricProps = "  <PropertyGroup>`n    <UseFabric>true</UseFabric>`n    <UseWinUI3>true</UseWinUI3>`n  </PropertyGroup>`n"
+        $content = $content -replace '</Project>', "$fabricProps</Project>"
+        Set-Content $propsFile -Value $content -NoNewline
+
+        $($packagesSolutions; $vnextSolutions) | Where-Object { $fabricDesktopSolutions -contains $_.Name } | Foreach-Object {
+            Write-Host "Restoring $($_.FullName) with Fabric via ExperimentalFeatures.props"
+            & msbuild /t:Restore /p:RestoreForceEvaluate=true $_.FullName
+        }
+    }
+    finally {
+        # Restore original ExperimentalFeatures.props
+        Move-Item $propsBackup $propsFile -Force
     }
 
     # Re-run solutions that build with Chakra
