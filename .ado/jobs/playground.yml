@@ -147,6 +147,7 @@ jobs:
                 buildPlatform: ${{ matrix.BuildPlatform}}
                 buildConfiguration: ${{ matrix.BuildConfiguration}}
                 warnAsError: false
+                errorOnNuGetLockChanges: false
                 ${{if eq(config.BuildEnvironment, 'Continuous')}}:
                   msbuildArgs:
                     /p:PackageCertificateKeyFile=$(Build.SourcesDirectory)\EncodedKey.pfx

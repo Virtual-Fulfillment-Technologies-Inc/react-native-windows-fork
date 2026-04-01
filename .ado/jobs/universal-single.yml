@@ -44,8 +44,7 @@ steps:
       buildPlatform: ${{ parameters.buildPlatform }}
       buildConfiguration: ${{ parameters.buildConfiguration }}
       msbuildArguments: /p:ForceImportAfterCppTargets=$(Build.SourcesDirectory)\vnext\PropertySheets\CIBuildOptimizations.props
-      ${{ if ne(parameters.useFabric, true) }}:
-        errorOnNuGetLockChanges: false
+      errorOnNuGetLockChanges: false
 
   - ${{ if eq(parameters.buildEnvironment, 'Continuous') }}:
     - template: ../templates/component-governance.yml
