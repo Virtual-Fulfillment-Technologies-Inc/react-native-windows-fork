@@ -15,6 +15,7 @@ parameters:
   msbuildArguments: ''
   warnAsError: true
   parallelBuild: true
+  errorOnNuGetLockChanges: true
 
 steps:
   - pwsh: |
@@ -56,6 +57,8 @@ steps:
         ${{parameters.msbuildArguments}}
 
   - template: detect-nuget-lockfile-changes.yml
+    parameters:
+      errorOnNuGetLockChanges: ${{ parameters.errorOnNuGetLockChanges }}
 
   - template: upload-build-logs.yml
     parameters:

@@ -75,6 +75,8 @@ steps:
       buildPlatform: ${{ parameters.buildPlatform }}
       buildConfiguration: ${{ parameters.buildConfiguration }}
       msbuildArguments: /p:ForceImportAfterCppTargets=$(Build.SourcesDirectory)\vnext\PropertySheets\CIBuildOptimizations.props
+      ${{ if eq(parameters.useFabric, true) }}:
+        errorOnNuGetLockChanges: false
 
   - ${{ if and(eq(parameters.buildConfiguration, 'Debug'), eq(parameters.buildPlatform, 'x64')) }}:
     - script: yarn bundle

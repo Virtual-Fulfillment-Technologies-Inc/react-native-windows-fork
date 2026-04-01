@@ -63,6 +63,14 @@ try
         Move-Item $propsBackup $propsFile -Force
     }
 
+    # Re-run Desktop solution with defaults to reset lock files to non-Fabric state.
+    # The Fabric pass above added WindowsAppSDK deps to Mso.UnitTests; this pass
+    # removes them so the committed lock file matches non-Fabric CI builds.
+    $($packagesSolutions; $vnextSolutions) | Where-Object { $fabricDesktopSolutions -contains $_.Name } | Foreach-Object {
+        Write-Host "Restoring $($_.FullName) with defaults (post-Fabric reset)"
+        & msbuild /t:Restore /p:RestoreForceEvaluate=true $_.FullName
+    }
+
     # Re-run solutions that build with Chakra
     $chakraSolutions = @("ReactUWPTestApp.sln", "integrationtest.sln");
     $($packagesSolutions; $vnextSolutions) | Where-Object { $chakraSolutions -contains $_.Name } | Foreach-Object {
