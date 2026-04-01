@@ -1,7 +1,12 @@
 #
 # The Release pipeline entry point.
-# It releases npm packages to npmjs.com and NuGet packages to the public
-# ms/react-native and ms/react-native-public ADO feeds and to nuget.org.
+# It publishes npm packages to npmjs.com, NuGet packages to the public
+# ms/react-native and ms/react-native-public ADO feeds and to nuget.org,
+# and PDB symbols to the Microsoft Symbol Server.
+#
+# This file replaces release.yml and references the renamed "CI" pipeline
+# (formerly "Publish"). Once all branches use this file, release.yml can
+# be deleted.
 #
 # The pipeline completion trigger is defined below in the pipeline resource.
 # Do NOT add a build completion trigger in the ADO UI — UI triggers override
@@ -9,16 +14,16 @@
 # with incorrect metadata (wrong commit message and branch).
 #
 
-name: RNW NuGet Release $(Date:yyyyMMdd).$(Rev:r)
+name: RNW Release $(Date:yyyyMMdd).$(Rev:r)
 
 trigger: none
 pr: none
 
 resources:
   pipelines:
-  - pipeline: 'Publish'
+  - pipeline: 'CI'
     project: 'ReactNative'
-    source: 'Publish'
+    source: 'CI'
     trigger:
       branches:
         include:
@@ -67,14 +72,14 @@ extends:
             Write-Host "Build.Repository.Name:      $env:BUILD_REPOSITORY_NAME"
             Write-Host "System.TeamProject:         $env:SYSTEM_TEAMPROJECT"
             Write-Host ""
-            Write-Host "== Pipeline Resource: Publish =="
-            Write-Host "Publish.runName:            $env:PUBLISH_RUNNAME"
-            Write-Host "Publish.runID:              $env:PUBLISH_RUNID"
-            Write-Host "Publish.sourceBranch:       $env:PUBLISH_SOURCEBRANCH"
-            Write-Host "Publish.sourceCommit:       $env:PUBLISH_SOURCECOMMIT"
-            Write-Host "Publish.pipelineID:         $env:PUBLISH_PIPELINEID"
-            Write-Host "Publish.requestedFor:       $env:PUBLISH_REQUESTEDFOR"
-            Write-Host "Publish.requestedForID:     $env:PUBLISH_REQUESTEDFORID"
+            Write-Host "== Pipeline Resource: CI =="
+            Write-Host "CI.runName:            $env:CI_RUNNAME"
+            Write-Host "CI.runID:              $env:CI_RUNID"
+            Write-Host "CI.sourceBranch:       $env:CI_SOURCEBRANCH"
+            Write-Host "CI.sourceCommit:       $env:CI_SOURCECOMMIT"
+            Write-Host "CI.pipelineID:         $env:CI_PIPELINEID"
+            Write-Host "CI.requestedFor:       $env:CI_REQUESTEDFOR"
+            Write-Host "CI.requestedForID:     $env:CI_REQUESTEDFORID"
           displayName: Log all pipeline variables
           env:
             BUILD_REASON: $(Build.Reason)
@@ -86,23 +91,23 @@ extends:
             BUILD_DEFINITIONNAME: $(Build.DefinitionName)
             BUILD_REPOSITORY_NAME: $(Build.Repository.Name)
             SYSTEM_TEAMPROJECT: $(System.TeamProject)
-            PUBLISH_RUNNAME: $(resources.pipeline.Publish.runName)
-            PUBLISH_RUNID: $(resources.pipeline.Publish.runID)
-            PUBLISH_SOURCEBRANCH: $(resources.pipeline.Publish.sourceBranch)
-            PUBLISH_SOURCECOMMIT: $(resources.pipeline.Publish.sourceCommit)
-            PUBLISH_PIPELINEID: $(resources.pipeline.Publish.pipelineID)
-            PUBLISH_REQUESTEDFOR: $(resources.pipeline.Publish.requestedFor)
-            PUBLISH_REQUESTEDFORID: $(resources.pipeline.Publish.requestedForID)
+            CI_RUNNAME: $(resources.pipeline.CI.runName)
+            CI_RUNID: $(resources.pipeline.CI.runID)
+            CI_SOURCEBRANCH: $(resources.pipeline.CI.sourceBranch)
+            CI_SOURCECOMMIT: $(resources.pipeline.CI.sourceCommit)
+            CI_PIPELINEID: $(resources.pipeline.CI.pipelineID)
+            CI_REQUESTEDFOR: $(resources.pipeline.CI.requestedFor)
+            CI_REQUESTEDFORID: $(resources.pipeline.CI.requestedForID)
 
         - pwsh: |
             $buildReason = $env:BUILD_REASON
             # Use only the first line of the commit message
             $sourceMessage = ($env:SOURCE_MESSAGE -split "`n")[0].Trim()
-            $publishRunName = $env:PUBLISH_RUN_NAME
+            $ciRunName = $env:CI_RUN_NAME
             $sourceBranch = $env:SOURCE_BRANCH -replace '^refs/heads/', ''
 
             # Extract the datestamp (e.g. "20260319.4") from the original build number
-            # which has the format "RNW NuGet Release 20260319.4"
+            # which has the format "RNW Release 20260319.4"
             $originalBuildNumber = $env:BUILD_BUILDNUMBER
             $dateStamp = if ($originalBuildNumber -match '(\d{8}\.\d+)$') { $Matches[1] } else { "" }
 
@@ -111,15 +116,15 @@ extends:
 
             if ($buildReason -eq "Manual") {
               $shouldRelease = $true
-              if ($publishRunName) {
-                $buildNumber = "$publishRunName ($sourceBranch) - $dateStamp"
+              if ($ciRunName) {
+                $buildNumber = "$ciRunName ($sourceBranch) - $dateStamp"
               } else {
                 $buildNumber = "Release ($sourceBranch) - $dateStamp"
               }
             }
             elseif ($sourceMessage.StartsWith("RELEASE:")) {
               $shouldRelease = $true
-              $buildNumber = "$publishRunName ($sourceBranch) - $dateStamp"
+              $buildNumber = "$ciRunName ($sourceBranch) - $dateStamp"
             }
             else {
               $shouldRelease = $false
@@ -147,8 +152,8 @@ extends:
             BUILD_REASON: $(Build.Reason)
             BUILD_BUILDNUMBER: $(Build.BuildNumber)
             SOURCE_MESSAGE: $(Build.SourceVersionMessage)
-            PUBLISH_RUN_NAME: $(resources.pipeline.Publish.runName)
-            SOURCE_BRANCH: $(resources.pipeline.Publish.sourceBranch)
+            CI_RUN_NAME: $(resources.pipeline.CI.runName)
+            SOURCE_BRANCH: $(resources.pipeline.CI.sourceBranch)
 
         - script: echo Proceeding with release
           displayName: RELEASING - proceeding to publish
@@ -173,11 +178,11 @@ extends:
           isProduction: true
           inputs:
           - input: pipelineArtifact
-            pipeline: 'Publish'
+            pipeline: 'CI'
             artifactName: 'NpmPackedTarballs'
             targetPath: '$(Pipeline.Workspace)/published-packages'
           - input: pipelineArtifact
-            pipeline: 'Publish'
+            pipeline: 'CI'
             artifactName: 'VersionEnvVars'
             targetPath: '$(Pipeline.Workspace)/VersionEnvVars'
         steps:
@@ -222,7 +227,7 @@ extends:
           isProduction: true
           inputs:
           - input: pipelineArtifact
-            pipeline: 'Publish'
+            pipeline: 'CI'
             artifactName: 'ReactWindows-final-nuget'
             targetPath: '$(Pipeline.Workspace)/ReactWindows-final-nuget'
         steps:
@@ -243,7 +248,7 @@ extends:
           isProduction: true
           inputs:
           - input: pipelineArtifact
-            pipeline: 'Publish'
+            pipeline: 'CI'
             artifactName: 'ReactWindows-final-nuget'
             targetPath: '$(Pipeline.Workspace)/ReactWindows-final-nuget'
         steps:
@@ -266,7 +271,7 @@ extends:
           isProduction: true
           inputs:
           - input: pipelineArtifact
-            pipeline: 'Publish'
+            pipeline: 'CI'
             artifactName: 'ReactWindows-final-nuget'
             targetPath: '$(Pipeline.Workspace)/ReactWindows-final-nuget'
         steps:
@@ -291,7 +296,7 @@ extends:
           isProduction: true
           inputs:
           - input: pipelineArtifact
-            pipeline: 'Publish'
+            pipeline: 'CI'
             artifactName: 'ReactWindows-final-nuget'
             targetPath: '$(Pipeline.Workspace)/ReactWindows-final-nuget'
         steps:

@@ -7,7 +7,7 @@ parameters:
   type: string
 
 steps:
-  - powershell: |
+  - pwsh: |
       [xml] $experimentalFeatures = Get-Content .\ExperimentalFeatures.props
       $nsm = New-Object Xml.XmlNamespaceManager($experimentalFeatures.NameTable)
       $nsm.AddNamespace('ns', $experimentalFeatures.DocumentElement.NamespaceURI)
