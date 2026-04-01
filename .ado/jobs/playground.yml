@@ -176,6 +176,7 @@ jobs:
                   $appRecipePath = "$(Build.SourcesDirectory)\packages\playground\windows\$($platDirs['${{ matrix.BuildPlatform }}'])${{ matrix.BuildConfiguration }}\playground\playground.build.appxrecipe"
                   if (!(Test-Path $appRecipePath)) { throw "can't find '$appRecipePath'" }
                   &$appRecipeToolPath $appRecipePath
+                  Import-Module Appx -UseWindowsPowerShell -WarningAction SilentlyContinue
                   if (!(Get-AppxPackage 'RNPlayground')) {throw "RNPlayground app does not appear to be installed"}
                   Set-Location "$(Build.SourcesDirectory)\packages\debug-test"
                   $env:DEBUGTEST_LOGFOLDER = "$(Build.StagingDirectory)\DebugTestLogs"
