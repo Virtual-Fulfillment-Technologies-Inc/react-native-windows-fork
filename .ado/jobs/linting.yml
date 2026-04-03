@@ -50,8 +50,9 @@ jobs:
 
       - script: yarn validate-overrides
         displayName: yarn validate-overrides
-        env:
-          PLATFORM_OVERRIDE_GITHUB_TOKEN: ${{ if eq(parameters.buildEnvironment, 'Continuous') }}$(GitHubOAuthToken)${{ else }}$(PLATFORM_OVERRIDE_GITHUB_TOKEN)${{ /if }}
+        ${{ if eq(parameters.buildEnvironment, 'Continuous') }}:
+          env:
+            PLATFORM_OVERRIDE_GITHUB_TOKEN: $(GitHubOAuthToken)
 
       - script: npx unbroken -q --local-only --allow-local-line-sections
         displayName: check local links in .md files
