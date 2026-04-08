@@ -2,6 +2,21 @@
   "name": "react-native-windows",
   "entries": [
     {
+      "date": "Wed, 08 Apr 2026 03:55:02 GMT",
+      "version": "0.74.56",
+      "tag": "react-native-windows_v0.74.56",
+      "comments": {
+        "patch": [
+          {
+            "author": "vmorozov@microsoft.com",
+            "package": "react-native-windows",
+            "commit": "539960281a2b399bb27508e3ed5104df773c36eb",
+            "comment": "Fix linter issues"
+          }
+        ]
+      }
+    },
+    {
       "date": "Sat, 04 Apr 2026 08:10:03 GMT",
       "version": "0.74.55",
       "tag": "react-native-windows_v0.74.55",
