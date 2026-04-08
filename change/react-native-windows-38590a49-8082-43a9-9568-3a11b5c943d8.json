@@ -1,7 +1,0 @@
-{
-  "type": "patch",
-  "comment": "Fix linter issues",
-  "packageName": "react-native-windows",
-  "email": "vmorozov@microsoft.com",
-  "dependentChangeType": "patch"
-}

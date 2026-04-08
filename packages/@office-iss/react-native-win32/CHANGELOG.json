@@ -2,6 +2,21 @@
   "name": "@office-iss/react-native-win32",
   "entries": [
     {
+      "date": "Wed, 08 Apr 2026 03:55:02 GMT",
+      "version": "0.74.13",
+      "tag": "@office-iss/react-native-win32_v0.74.13",
+      "comments": {
+        "patch": [
+          {
+            "author": "vmorozov@microsoft.com",
+            "package": "@office-iss/react-native-win32",
+            "commit": "539960281a2b399bb27508e3ed5104df773c36eb",
+            "comment": "Fix linter issues"
+          }
+        ]
+      }
+    },
+    {
       "date": "Wed, 18 Mar 2026 04:41:39 GMT",
       "version": "0.74.12",
       "tag": "@office-iss/react-native-win32_v0.74.12",
