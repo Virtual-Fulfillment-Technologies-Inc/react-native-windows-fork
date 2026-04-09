@@ -1,8 +1,16 @@
 # Change Log - react-native-windows
 
-<!-- This log was last generated on Thu, 09 Apr 2026 06:12:08 GMT and should not be manually modified. -->
+<!-- This log was last generated on Thu, 09 Apr 2026 19:03:36 GMT and should not be manually modified. -->
 
 <!-- Start content -->
+
+## 0.82.5
+
+Thu, 09 Apr 2026 19:03:36 GMT
+
+### Patches
+
+- Remove dependency ReactWindows.OpenSSL.StdCall.Static (julio.rocha@microsoft.com)
 
 ## 0.82.4
 

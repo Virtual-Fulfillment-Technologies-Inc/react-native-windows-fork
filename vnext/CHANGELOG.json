@@ -2,6 +2,21 @@
   "name": "react-native-windows",
   "entries": [
     {
+      "date": "Thu, 09 Apr 2026 19:03:36 GMT",
+      "version": "0.82.5",
+      "tag": "react-native-windows_v0.82.5",
+      "comments": {
+        "patch": [
+          {
+            "author": "julio.rocha@microsoft.com",
+            "package": "react-native-windows",
+            "commit": "a54b3f93999605bc88ebc3baa99e42790d4af4d1",
+            "comment": "Remove dependency ReactWindows.OpenSSL.StdCall.Static"
+          }
+        ]
+      }
+    },
+    {
       "date": "Thu, 09 Apr 2026 06:12:08 GMT",
       "version": "0.82.4",
       "tag": "react-native-windows_v0.82.4",
