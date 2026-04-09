@@ -1,8 +1,17 @@
 # Change Log - react-native-windows
 
-<!-- This log was last generated on Wed, 08 Apr 2026 00:16:37 GMT and should not be manually modified. -->
+<!-- This log was last generated on Thu, 09 Apr 2026 23:43:40 GMT and should not be manually modified. -->
 
 <!-- Start content -->
+
+## 0.81.14
+
+Thu, 09 Apr 2026 23:43:40 GMT
+
+### Patches
+
+- Upgrade to Boost 1.84 (julio.rocha@microsoft.com)
+- Remove dependency ReactWindows.OpenSSL.StdCall.Static (julio.rocha@microsoft.com)
 
 ## 0.81.13
 
