@@ -2,6 +2,21 @@
   "name": "@react-native-windows/cli",
   "entries": [
     {
+      "date": "Fri, 10 Apr 2026 21:07:04 GMT",
+      "version": "0.0.0-canary.288",
+      "tag": "@react-native-windows/cli_v0.0.0-canary.288",
+      "comments": {
+        "prerelease": [
+          {
+            "author": "vmorozov@microsoft.com",
+            "package": "@react-native-windows/cli",
+            "commit": "830aad9c15ffdc5c9e3e967851b27706a5269311",
+            "comment": "Add folly and fast-float to fork-sync"
+          }
+        ]
+      }
+    },
+    {
       "date": "Tue, 07 Apr 2026 23:42:38 GMT",
       "version": "0.0.0-canary.287",
       "tag": "@react-native-windows/cli_v0.0.0-canary.287",

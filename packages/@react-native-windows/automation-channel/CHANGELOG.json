@@ -2,6 +2,27 @@
   "name": "@react-native-windows/automation-channel",
   "entries": [
     {
+      "date": "Fri, 10 Apr 2026 21:07:04 GMT",
+      "version": "0.0.0-canary.1050",
+      "tag": "@react-native-windows/automation-channel_v0.0.0-canary.1050",
+      "comments": {
+        "prerelease": [
+          {
+            "author": "vmorozov@microsoft.com",
+            "package": "@react-native-windows/automation-channel",
+            "commit": "830aad9c15ffdc5c9e3e967851b27706a5269311",
+            "comment": "Add folly and fast-float to fork-sync"
+          },
+          {
+            "author": "beachball",
+            "package": "@react-native-windows/automation-channel",
+            "comment": "Bump react-native-windows to v0.0.0-canary.1050",
+            "commit": "not available"
+          }
+        ]
+      }
+    },
+    {
       "date": "Wed, 08 Apr 2026 13:25:17 GMT",
       "version": "0.0.0-canary.1049",
       "tag": "@react-native-windows/automation-channel_v0.0.0-canary.1049",

@@ -1,8 +1,17 @@
 # Change Log - react-native-windows
 
-<!-- This log was last generated on Wed, 08 Apr 2026 13:25:17 GMT and should not be manually modified. -->
+<!-- This log was last generated on Fri, 10 Apr 2026 21:07:04 GMT and should not be manually modified. -->
 
 <!-- Start content -->
+
+## 0.0.0-canary.1050
+
+Fri, 10 Apr 2026 21:07:04 GMT
+
+### Changes
+
+- Add folly and fast-float to fork-sync (vmorozov@microsoft.com)
+- Bump @react-native-windows/cli to v0.0.0-canary.288
 
 ## 0.0.0-canary.1049
 
