@@ -2,6 +2,27 @@
   "name": "@react-native-windows/automation-channel",
   "entries": [
     {
+      "date": "Fri, 10 Apr 2026 06:33:07 GMT",
+      "version": "0.83.0-preview.3",
+      "tag": "@react-native-windows/automation-channel_v0.83.0-preview.3",
+      "comments": {
+        "prerelease": [
+          {
+            "author": "julio.rocha@microsoft.com",
+            "package": "@react-native-windows/automation-channel",
+            "commit": "a543e9117e9acfca0f055e8a4b169377b299b1b7",
+            "comment": "Upgrade to Boost 1.84"
+          },
+          {
+            "author": "beachball",
+            "package": "@react-native-windows/automation-channel",
+            "comment": "Bump react-native-windows to v0.83.0-preview.3",
+            "commit": "not available"
+          }
+        ]
+      }
+    },
+    {
       "date": "Mon, 30 Mar 2026 23:06:11 GMT",
       "version": "0.83.0-preview.2",
       "tag": "@react-native-windows/automation-channel_v0.83.0-preview.2",

@@ -2,6 +2,21 @@
   "name": "react-native-windows",
   "entries": [
     {
+      "date": "Fri, 10 Apr 2026 06:33:07 GMT",
+      "version": "0.83.0-preview.3",
+      "tag": "react-native-windows_v0.83.0-preview.3",
+      "comments": {
+        "prerelease": [
+          {
+            "author": "julio.rocha@microsoft.com",
+            "package": "react-native-windows",
+            "commit": "a543e9117e9acfca0f055e8a4b169377b299b1b7",
+            "comment": "Upgrade to Boost 1.84"
+          }
+        ]
+      }
+    },
+    {
       "date": "Mon, 30 Mar 2026 23:06:11 GMT",
       "version": "0.83.0-preview.2",
       "tag": "react-native-windows_v0.83.0-preview.2",
