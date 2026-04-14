@@ -697,7 +697,7 @@ void WindowsTextInputComponentView::OnPointerPressed(
         wParam |= (XBUTTON2 << 16);
         break;
     }
-    wParam = PointerRoutedEventArgsToMouseWParam(args);
+    wParam |= PointerRoutedEventArgsToMouseWParam(args);
   } else {
     if (IsDoubleClick()) {
       msg = WM_LBUTTONDBLCLK;
@@ -766,7 +766,7 @@ void WindowsTextInputComponentView::OnPointerReleased(
         wParam |= (XBUTTON2 << 16);
         break;
     }
-    wParam = PointerRoutedEventArgsToMouseWParam(args);
+    wParam |= PointerRoutedEventArgsToMouseWParam(args);
   } else {
     msg = WM_LBUTTONUP;
     wParam = PointerRoutedEventArgsToMouseWParam(args);
@@ -832,10 +832,10 @@ void WindowsTextInputComponentView::OnPointerMoved(
     DrawBlock db(*this);
     auto hr = m_textServices->TxSendMessage(msg, static_cast<WPARAM>(wParam), static_cast<LPARAM>(lParam), &lresult);
     args.Handled(hr != S_FALSE);
-  }
 
-  m_textServices->OnTxSetCursor(
-      DVASPECT_CONTENT, -1, nullptr, nullptr, nullptr, nullptr, nullptr, ptContainer.x, ptContainer.y);
+    m_textServices->OnTxSetCursor(
+        DVASPECT_CONTENT, -1, nullptr, nullptr, nullptr, nullptr, nullptr, ptContainer.x, ptContainer.y);
+  }
 }
 
 void WindowsTextInputComponentView::OnPointerWheelChanged(
