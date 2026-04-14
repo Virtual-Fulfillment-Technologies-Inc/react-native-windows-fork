@@ -699,9 +699,6 @@ void WindowsTextInputComponentView::OnPointerPressed(
     }
     wParam = PointerRoutedEventArgsToMouseWParam(args);
   } else {
-    // Map touch/pen input to mouse messages. The windowless RichEdit control (ITextServices/ITextHost)
-    // predates WM_POINTER* messages and does not handle them for focus acquisition. Sending
-    // WM_LBUTTONDOWN ensures RichEdit properly calls TxSetFocus() on touch press, just like mouse clicks.
     if (IsDoubleClick()) {
       msg = WM_LBUTTONDBLCLK;
     } else {
