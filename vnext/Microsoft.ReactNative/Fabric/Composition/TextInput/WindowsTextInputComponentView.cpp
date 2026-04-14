@@ -937,7 +937,7 @@ bool WindowsTextInputComponentView::ShouldSubmit(
         bool ctrlDown = (args.KeyboardSource().GetKeyState(winrt::Windows::System::VirtualKey::Control) &
                          winrt::Microsoft::UI::Input::VirtualKeyStates::Down) ==
             winrt::Microsoft::UI::Input::VirtualKeyStates::Down;
-        bool altDown = (args.KeyboardSource().GetKeyState(winrt::Windows::System::VirtualKey::Control) &
+        bool altDown = (args.KeyboardSource().GetKeyState(winrt::Windows::System::VirtualKey::Menu) &
                         winrt::Microsoft::UI::Input::VirtualKeyStates::Down) ==
             winrt::Microsoft::UI::Input::VirtualKeyStates::Down;
         bool metaDown = (args.KeyboardSource().GetKeyState(winrt::Windows::System::VirtualKey::LeftWindows) &
@@ -948,7 +948,7 @@ bool WindowsTextInputComponentView::ShouldSubmit(
                 winrt::Microsoft::UI::Input::VirtualKeyStates::Down;
         return (submitKeyEvent.shiftKey && shiftDown) || (submitKeyEvent.ctrlKey && ctrlDown) ||
             (submitKeyEvent.altKey && altDown) || (submitKeyEvent.metaKey && metaDown) ||
-            (!submitKeyEvent.shiftKey && !submitKeyEvent.altKey && !submitKeyEvent.metaKey && !submitKeyEvent.altKey &&
+            (!submitKeyEvent.shiftKey && !submitKeyEvent.ctrlKey && !submitKeyEvent.altKey && !submitKeyEvent.metaKey &&
              !shiftDown && !ctrlDown && !altDown && !metaDown);
       } else {
         shouldSubmit = false;
