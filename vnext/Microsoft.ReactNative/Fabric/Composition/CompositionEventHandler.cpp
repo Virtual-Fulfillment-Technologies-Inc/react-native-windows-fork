@@ -1185,9 +1185,12 @@ void CompositionEventHandler::onPointerPressed(
   });
 
   if (staleTouch != m_activeTouches.end()) {
-    // A pointer with this ID already exists - Should we fire a button cancel or something?
-    // assert(false);
-    return;
+    // A previous pointer with this ID was never properly released (e.g., app lost focus,
+    // pointer left window). Cancel the stale touch and clean it up so the new press can proceed.
+    if (staleTouch->second.eventEmitter) {
+      DispatchTouchEvent(TouchEventType::Cancel, pointerId, pointerPoint, keyModifiers);
+    }
+    m_activeTouches.erase(staleTouch);
   }
 
   const auto eventType = TouchEventType::Start;
@@ -1244,6 +1247,12 @@ void CompositionEventHandler::onPointerPressed(
         break;
       }
       targetComponentView = targetComponentView.Parent();
+    }
+
+    // Don't register the touch if no eventEmitter was found — inserting a null-emitter entry
+    // into m_activeTouches would block future presses with the same pointer ID.
+    if (!activeTouch.eventEmitter) {
+      return;
     }
 
     UpdateActiveTouch(activeTouch, ptScaled, ptLocal);
