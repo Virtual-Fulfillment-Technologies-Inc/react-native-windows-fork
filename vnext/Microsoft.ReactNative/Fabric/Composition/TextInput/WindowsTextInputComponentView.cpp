@@ -699,8 +699,15 @@ void WindowsTextInputComponentView::OnPointerPressed(
     }
     wParam = PointerRoutedEventArgsToMouseWParam(args);
   } else {
-    msg = WM_POINTERDOWN;
-    wParam = PointerPointToPointerWParam(pp);
+    // Map touch/pen input to mouse messages. The windowless RichEdit control (ITextServices/ITextHost)
+    // predates WM_POINTER* messages and does not handle them for focus acquisition. Sending
+    // WM_LBUTTONDOWN ensures RichEdit properly calls TxSetFocus() on touch press, just like mouse clicks.
+    if (IsDoubleClick()) {
+      msg = WM_LBUTTONDBLCLK;
+    } else {
+      msg = WM_LBUTTONDOWN;
+    }
+    wParam = PointerRoutedEventArgsToMouseWParam(args);
   }
 
   if (m_textServices && msg) {
@@ -764,8 +771,8 @@ void WindowsTextInputComponentView::OnPointerReleased(
     }
     wParam = PointerRoutedEventArgsToMouseWParam(args);
   } else {
-    msg = WM_POINTERUP;
-    wParam = PointerPointToPointerWParam(pp);
+    msg = WM_LBUTTONUP;
+    wParam = PointerRoutedEventArgsToMouseWParam(args);
   }
 
   if (m_textServices && msg) {
@@ -819,8 +826,8 @@ void WindowsTextInputComponentView::OnPointerMoved(
     msg = WM_MOUSEMOVE;
     wParam = PointerRoutedEventArgsToMouseWParam(args);
   } else {
-    msg = WM_POINTERUPDATE;
-    wParam = PointerPointToPointerWParam(pp);
+    msg = WM_MOUSEMOVE;
+    wParam = PointerRoutedEventArgsToMouseWParam(args);
   }
 
   if (m_textServices) {
