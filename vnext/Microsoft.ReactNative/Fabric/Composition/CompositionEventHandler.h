@@ -149,6 +149,11 @@ class CompositionEventHandler : public std::enable_shared_from_this<CompositionE
   static void
   UpdateActiveTouch(ActiveTouch &activeTouch, facebook::react::Point ptScaled, facebook::react::Point ptLocal) noexcept;
 
+  void DispatchSynthesizedTouchCancelForActiveTouch(
+      const ActiveTouch &cancelledTouch,
+      const winrt::Microsoft::ReactNative::Composition::Input::PointerPoint &pointerPoint,
+      winrt::Windows::System::VirtualKeyModifiers keyModifiers);
+
   void UpdateCursor() noexcept;
   void SetCursor(facebook::react::Cursor cursor, HCURSOR hcur) noexcept;
 
