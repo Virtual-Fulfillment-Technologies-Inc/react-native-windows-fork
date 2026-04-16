@@ -358,6 +358,7 @@ CompositionEventHandler::~CompositionEventHandler() {
       pointerSource.PointerMoved(m_pointerMovedToken);
       pointerSource.PointerCaptureLost(m_pointerCaptureLostToken);
       pointerSource.PointerWheelChanged(m_pointerWheelChangedToken);
+      pointerSource.PointerExited(m_pointerExitedToken);
       auto keyboardSource = winrt::Microsoft::UI::Input::InputKeyboardSource::GetForIsland(island);
       keyboardSource.KeyDown(m_keyDownToken);
       keyboardSource.KeyUp(m_keyUpToken);
@@ -1292,8 +1293,13 @@ void CompositionEventHandler::onPointerReleased(
     facebook::react::Point ptLocal, ptScaled;
     getTargetPointerArgs(fabricuiManager, pointerPoint, tag, ptScaled, ptLocal);
 
-    if (tag == -1)
+    if (tag == -1) {
+      if (activeTouch->second.eventEmitter) {
+        DispatchTouchEvent(TouchEventType::Cancel, pointerId, pointerPoint, keyModifiers);
+      }
+      m_activeTouches.erase(pointerId);
       return;
+    }
 
     auto targetComponentView = fabricuiManager->GetViewRegistry().componentViewDescriptorWithTag(tag).view;
     auto args = winrt::make<winrt::Microsoft::ReactNative::Composition::Input::implementation::PointerRoutedEventArgs>(
