@@ -358,6 +358,7 @@ CompositionEventHandler::~CompositionEventHandler() {
       pointerSource.PointerMoved(m_pointerMovedToken);
       pointerSource.PointerCaptureLost(m_pointerCaptureLostToken);
       pointerSource.PointerWheelChanged(m_pointerWheelChangedToken);
+      pointerSource.PointerExited(m_pointerExitedToken);
       auto keyboardSource = winrt::Microsoft::UI::Input::InputKeyboardSource::GetForIsland(island);
       keyboardSource.KeyDown(m_keyDownToken);
       keyboardSource.KeyUp(m_keyUpToken);
@@ -1185,9 +1186,12 @@ void CompositionEventHandler::onPointerPressed(
   });
 
   if (staleTouch != m_activeTouches.end()) {
-    // A pointer with this ID already exists - Should we fire a button cancel or something?
-    // assert(false);
-    return;
+    // A previous pointer with this ID was never properly released (e.g., app lost focus,
+    // pointer left window). Cancel the stale touch and clean it up so the new press can proceed.
+    if (staleTouch->second.eventEmitter) {
+      DispatchSynthesizedTouchCancelForActiveTouch(staleTouch->second, pointerPoint, keyModifiers);
+    }
+    m_activeTouches.erase(staleTouch);
   }
 
   const auto eventType = TouchEventType::Start;
@@ -1246,6 +1250,12 @@ void CompositionEventHandler::onPointerPressed(
       targetComponentView = targetComponentView.Parent();
     }
 
+    // Don't register the touch if no eventEmitter was found — inserting a null-emitter entry
+    // into m_activeTouches would block future presses with the same pointer ID.
+    if (!activeTouch.eventEmitter) {
+      return;
+    }
+
     UpdateActiveTouch(activeTouch, ptScaled, ptLocal);
 
     // activeTouch.touch.isPrimary = true;
@@ -1283,8 +1293,13 @@ void CompositionEventHandler::onPointerReleased(
     facebook::react::Point ptLocal, ptScaled;
     getTargetPointerArgs(fabricuiManager, pointerPoint, tag, ptScaled, ptLocal);
 
-    if (tag == -1)
+    if (tag == -1) {
+      if (activeTouch->second.eventEmitter) {
+        DispatchSynthesizedTouchCancelForActiveTouch(activeTouch->second, pointerPoint, keyModifiers);
+      }
+      m_activeTouches.erase(pointerId);
       return;
+    }
 
     auto targetComponentView = fabricuiManager->GetViewRegistry().componentViewDescriptorWithTag(tag).view;
     auto args = winrt::make<winrt::Microsoft::ReactNative::Composition::Input::implementation::PointerRoutedEventArgs>(
@@ -1454,6 +1469,47 @@ facebook::react::PointerEvent CompositionEventHandler::CreatePointerEventFromAct
   // event.isPrimary = activeTouch.isPrimary;
 
   return event;
+}
+
+void CompositionEventHandler::DispatchSynthesizedTouchCancelForActiveTouch(
+    const ActiveTouch &cancelledTouch,
+    const winrt::Microsoft::ReactNative::Composition::Input::PointerPoint &pointerPoint,
+    winrt::Windows::System::VirtualKeyModifiers keyModifiers) {
+  if (!cancelledTouch.eventEmitter) {
+    return;
+  }
+
+  facebook::react::PointerEvent pointerEvent =
+      CreatePointerEventFromActiveTouch(cancelledTouch, TouchEventType::Cancel);
+  winrt::Microsoft::ReactNative::ComponentView targetView{nullptr};
+  facebook::react::SharedTouchEventEmitter emitter = cancelledTouch.eventEmitter;
+  auto pointerHandler = [emitter, pointerEvent](std::vector<winrt::Microsoft::ReactNative::ComponentView> &) {
+    emitter->onPointerCancel(pointerEvent);
+  };
+  HandleIncomingPointerEvent(pointerEvent, targetView, pointerPoint, keyModifiers, pointerHandler);
+
+  facebook::react::TouchEvent touchEvent;
+  touchEvent.changedTouches.insert(cancelledTouch.touch);
+
+  for (const auto &pair : m_activeTouches) {
+    if (!pair.second.eventEmitter || pair.second.eventEmitter != cancelledTouch.eventEmitter) {
+      continue;
+    }
+
+    if (touchEvent.changedTouches.find(pair.second.touch) != touchEvent.changedTouches.end()) {
+      continue;
+    }
+
+    touchEvent.touches.insert(pair.second.touch);
+  }
+
+  for (const auto &pair : m_activeTouches) {
+    if (pair.second.eventEmitter == cancelledTouch.eventEmitter) {
+      touchEvent.targetTouches.insert(pair.second.touch);
+    }
+  }
+
+  cancelledTouch.eventEmitter->onTouchCancel(touchEvent);
 }
 
 // If we have events that include multiple pointer updates, we should change arg from pointerId to vector<pointerId>

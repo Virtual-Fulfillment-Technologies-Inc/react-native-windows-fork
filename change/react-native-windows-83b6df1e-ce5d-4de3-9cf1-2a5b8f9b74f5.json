@@ -1,0 +1,7 @@
+{
+  "type": "patch",
+  "comment": "Fixed: Touch screen events not properly captured for pressable and text inputs",
+  "packageName": "react-native-windows",
+  "email": "gordomacmaster@gmail.com",
+  "dependentChangeType": "patch"
+}
