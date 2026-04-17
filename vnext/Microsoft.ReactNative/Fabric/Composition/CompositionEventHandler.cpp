@@ -1212,7 +1212,18 @@ void CompositionEventHandler::onPointerPressed(
         ->OnPointerPressed(args);
 
     ActiveTouch activeTouch{0};
-    activeTouch.touchType = UITouchType::Mouse;
+    switch (pointerPoint.PointerDeviceType()) {
+      case Composition::Input::PointerDeviceType::Touch:
+        activeTouch.touchType = UITouchType::Touch;
+        break;
+      case Composition::Input::PointerDeviceType::Pen:
+        activeTouch.touchType = UITouchType::Pen;
+        break;
+      case Composition::Input::PointerDeviceType::Mouse:
+      default:
+        activeTouch.touchType = UITouchType::Mouse;
+        break;
+    }
 
     // Map PointerUpdateKind to W3C button value
     // https://developer.mozilla.org/docs/Web/API/MouseEvent/button
