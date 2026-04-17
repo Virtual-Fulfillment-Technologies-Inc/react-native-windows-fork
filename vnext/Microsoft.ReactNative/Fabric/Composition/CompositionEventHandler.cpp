@@ -664,8 +664,15 @@ void CompositionEventHandler::onCharacterReceived(
   }
 }
 
-std::vector<winrt::Microsoft::ReactNative::ComponentView> GetTouchableViewsInPathToRoot(
+std::vector<winrt::Microsoft::ReactNative::ComponentView> CompositionEventHandler::GetTouchableViewsInPathToRoot(
     const winrt::Microsoft::ReactNative::ComponentView &componentView) {
+  if (componentView) {
+    auto tag = componentView.Tag();
+    if (tag == m_cachedEventPathTag) {
+      return m_cachedEventPath;
+    }
+  }
+
   std::vector<winrt::Microsoft::ReactNative::ComponentView> results;
   auto view = componentView;
   while (view) {
@@ -674,6 +681,12 @@ std::vector<winrt::Microsoft::ReactNative::ComponentView> GetTouchableViewsInPat
     }
     view = view.Parent();
   }
+
+  if (componentView) {
+    m_cachedEventPathTag = componentView.Tag();
+    m_cachedEventPath = results;
+  }
+
   return results;
 }
 

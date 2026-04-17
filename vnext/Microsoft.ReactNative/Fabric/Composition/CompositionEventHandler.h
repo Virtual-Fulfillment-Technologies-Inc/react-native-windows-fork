@@ -142,7 +142,7 @@ class CompositionEventHandler : public std::enable_shared_from_this<CompositionE
     ReactTaggedView initialComponentView{nullptr};
   };
 
-  static bool IsPointerWithinInitialTree(const ActiveTouch &activeTouch) noexcept;
+  bool IsPointerWithinInitialTree(const ActiveTouch &activeTouch) noexcept;
   static bool IsEndishEventType(TouchEventType eventType) noexcept;
   static const char *PointerTypeCStringFromUITouchType(UITouchType type) noexcept;
   static facebook::react::PointerEvent CreatePointerEventFromActiveTouch(
@@ -150,6 +150,9 @@ class CompositionEventHandler : public std::enable_shared_from_this<CompositionE
       TouchEventType eventType) noexcept;
   static void
   UpdateActiveTouch(ActiveTouch &activeTouch, facebook::react::Point ptScaled, facebook::react::Point ptLocal) noexcept;
+
+  std::vector<winrt::Microsoft::ReactNative::ComponentView> GetTouchableViewsInPathToRoot(
+      const winrt::Microsoft::ReactNative::ComponentView &componentView);
 
   void UpdateCursor() noexcept;
   void SetCursor(facebook::react::Cursor cursor, HCURSOR hcur) noexcept;
@@ -167,6 +170,10 @@ class CompositionEventHandler : public std::enable_shared_from_this<CompositionE
   bool m_hcursorOwned{false}; // If we create the cursor, so we need to destroy it
   facebook::react::Cursor m_currentCursor{facebook::react::Cursor::Auto};
   winrt::Microsoft::UI::Input::InputCursor m_inputCursor{nullptr};
+
+  // Single-entry cache for GetTouchableViewsInPathToRoot to avoid repeated tree walks
+  facebook::react::Tag m_cachedEventPathTag{-1};
+  std::vector<winrt::Microsoft::ReactNative::ComponentView> m_cachedEventPath;
 
   winrt::event_token m_pointerPressedToken;
   winrt::event_token m_pointerReleasedToken;
