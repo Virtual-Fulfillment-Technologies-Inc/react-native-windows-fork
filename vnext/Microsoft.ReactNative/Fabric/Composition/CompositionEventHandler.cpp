@@ -1181,9 +1181,7 @@ void CompositionEventHandler::onPointerPressed(
 
   PointerId pointerId = pointerPoint.PointerId();
 
-  auto staleTouch = std::find_if(m_activeTouches.begin(), m_activeTouches.end(), [pointerId](const auto &pair) {
-    return pair.second.touch.identifier == pointerId;
-  });
+  auto staleTouch = m_activeTouches.find(pointerId);
 
   if (staleTouch != m_activeTouches.end()) {
     // A previous pointer with this ID was never properly released (e.g., app lost focus,
@@ -1279,9 +1277,7 @@ void CompositionEventHandler::onPointerReleased(
     winrt::Windows::System::VirtualKeyModifiers keyModifiers) noexcept {
   int pointerId = pointerPoint.PointerId();
 
-  auto activeTouch = std::find_if(m_activeTouches.begin(), m_activeTouches.end(), [pointerId](const auto &pair) {
-    return pair.second.touch.identifier == pointerId;
-  });
+  auto activeTouch = m_activeTouches.find(pointerId);
 
   if (activeTouch == m_activeTouches.end()) {
     return;
