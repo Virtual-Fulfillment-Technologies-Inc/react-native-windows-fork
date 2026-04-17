@@ -14,6 +14,7 @@
 #include <react/renderer/graphics/HostPlatformColor.h>
 #include <react/renderer/textlayoutmanager/WindowsTextLayoutManager.h>
 #include <tom.h>
+#include <mutex>
 #include <unicode.h>
 #include <winrt/Microsoft.UI.Input.h>
 #include <winrt/Windows.System.h>
@@ -75,32 +76,29 @@ WindowsTextInputComponentView::DrawBlock::~DrawBlock() {
 
 // 	Msftedit.dll vs "Riched20.dll"?
 
+static std::once_flag g_richEditLoadedFlag;
 static HINSTANCE g_hInstRichEdit = nullptr;
 static PCreateTextServices g_pfnCreateTextServices;
 
 HRESULT HrEnsureRichEd20Loaded() noexcept {
-  if (g_hInstRichEdit == nullptr) {
+  HRESULT hr = S_OK;
+  std::call_once(g_richEditLoadedFlag, [&hr]() {
     g_hInstRichEdit = LoadLibrary(L"Msftedit.dll");
-    if (!g_hInstRichEdit)
-      return E_FAIL;
+    if (!g_hInstRichEdit) {
+      hr = E_FAIL;
+      return;
+    }
 
     // Create the windowless control (text services object)
     g_pfnCreateTextServices = (PCreateTextServices)GetProcAddress(g_hInstRichEdit, "CreateTextServices");
-    if (!g_pfnCreateTextServices)
-      return E_FAIL;
-
-    /*
-    // Calling the REExtendedRegisterClass() function is required for
-    // registering the REComboboxW and REListBoxW window classes.
-    PFNREGISTER pfnRegister = (PFNREGISTER)GetProcAddress(g_hInstRichEdit, "REExtendedRegisterClass");
-    if (pfnRegister) {
-      pfnRegister();
-      return S_OK;
-    } else
-      return E_FAIL;
-      */
-  }
-  return NOERROR;
+    if (!g_pfnCreateTextServices) {
+      hr = E_FAIL;
+      return;
+    }
+  });
+  if (!g_hInstRichEdit || !g_pfnCreateTextServices)
+    return E_FAIL;
+  return hr;
 }
 
 struct CompTextHost : public winrt::implements<CompTextHost, ITextHost> {
@@ -1836,6 +1834,9 @@ WindowsTextInputComponentView::createVisual() noexcept {
   winrt::com_ptr<::IUnknown> spUnk;
   winrt::check_hresult(g_pfnCreateTextServices(nullptr, m_textHost.get(), spUnk.put()));
   spUnk.as(m_textServices);
+  if (!m_textServices) {
+    return nullptr;
+  }
 
   LRESULT res;
   winrt::check_hresult(m_textServices->TxSendMessage(EM_SETTEXTMODE, TM_PLAINTEXT, 0, &res));
