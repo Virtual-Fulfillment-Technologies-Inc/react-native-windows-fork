@@ -14,6 +14,7 @@
 #include <winrt/Windows.Devices.Input.h>
 #include <optional>
 #include <set>
+#include <unordered_set>
 
 namespace winrt {
 using namespace Windows::UI;
@@ -161,7 +162,7 @@ class CompositionEventHandler : public std::enable_shared_from_this<CompositionE
   winrt::Microsoft::ReactNative::ReactContext m_context;
 
   facebook::react::Tag m_pointerCapturingComponentTag{-1}; // Component that has captured input
-  std::vector<PointerId> m_capturedPointers;
+  std::unordered_set<PointerId> m_capturedPointers;
   HCURSOR m_hcursor{nullptr};
   bool m_hcursorOwned{false}; // If we create the cursor, so we need to destroy it
   facebook::react::Cursor m_currentCursor{facebook::react::Cursor::Auto};

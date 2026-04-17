@@ -1030,7 +1030,7 @@ void CompositionEventHandler::getTargetPointerArgs(
   // to apply the current origin
   ptScaled += RootComponentView().layoutMetrics().frame.origin;
 
-  if (std::find(m_capturedPointers.begin(), m_capturedPointers.end(), pointerId) != m_capturedPointers.end()) {
+  if (m_capturedPointers.count(pointerId)) {
     assert(m_pointerCapturingComponentTag != -1);
     tag = m_pointerCapturingComponentTag;
 
@@ -1054,7 +1054,7 @@ void CompositionEventHandler::onPointerCaptureLost(
 
   if (m_pointerCapturingComponentTag) {
     // copy array to avoid iterator being invalidated during deletion
-    std::vector<PointerId> capturedPointers = m_capturedPointers;
+    std::unordered_set<PointerId> capturedPointers = m_capturedPointers;
 
     for (auto pointerId : capturedPointers) {
       releasePointerCapture(pointerId, m_pointerCapturingComponentTag);
@@ -1322,7 +1322,7 @@ bool CompositionEventHandler::CapturePointer(
   }
 
   m_pointerCapturingComponentTag = tag;
-  m_capturedPointers.push_back(pointer.PointerId());
+  m_capturedPointers.insert(pointer.PointerId());
   return true;
 }
 
@@ -1337,11 +1337,9 @@ bool CompositionEventHandler::releasePointerCapture(PointerId pointerId, faceboo
   bool result = false;
 
   if (m_pointerCapturingComponentTag == tag) {
-    auto it = std::find(m_capturedPointers.begin(), m_capturedPointers.end(), pointerId);
-    if (it == m_capturedPointers.end()) {
+    if (m_capturedPointers.erase(pointerId) == 0) {
       return false;
     }
-    m_capturedPointers.erase(it);
 
     if (std::shared_ptr<FabricUIManager> fabricuiManager =
             ::Microsoft::ReactNative::FabricUIManager::FromProperties(m_context.Properties())) {
@@ -1352,7 +1350,7 @@ bool CompositionEventHandler::releasePointerCapture(PointerId pointerId, faceboo
           ->OnPointerCaptureLost();
     }
 
-    if (m_capturedPointers.size() == 0) {
+    if (m_capturedPointers.empty()) {
       m_pointerCapturingComponentTag = -1;
       return true;
     }
