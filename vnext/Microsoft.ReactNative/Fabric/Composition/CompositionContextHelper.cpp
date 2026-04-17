@@ -1264,6 +1264,12 @@ struct CompScrollerVisual : winrt::implements<
     std::sort(snapPositions.begin(), snapPositions.end());
     snapPositions.erase(std::unique(snapPositions.begin(), snapPositions.end()), snapPositions.end());
 
+    // Skip reconfiguration if snap points haven't changed
+    if (snapPositions == m_previousSnapPositions) {
+      return;
+    }
+    m_previousSnapPositions = snapPositions;
+
     std::vector<typename TTypeRedirects::InteractionTrackerInertiaRestingValue> restingValues;
 
     for (size_t i = 0; i < snapPositions.size(); ++i) {
@@ -1393,6 +1399,7 @@ struct CompScrollerVisual : winrt::implements<
   winrt::Microsoft::ReactNative::Composition::Experimental::SnapPointsAlignment m_snapToAlignment{
       winrt::Microsoft::ReactNative::Composition::Experimental::SnapPointsAlignment::Near};
   std::vector<float> m_snapToOffsets;
+  std::vector<float> m_previousSnapPositions;
   bool m_inertia{false};
   bool m_custom{false};
   bool m_interacting{false};
