@@ -974,8 +974,8 @@ void CompositionEventHandler::UpdateActiveTouch(
   // activeTouch.touch.isEraser = false;
   activeTouch.touch.pagePoint.x = ptScaled.x;
   activeTouch.touch.pagePoint.y = ptScaled.y;
-  activeTouch.touch.screenPoint.x = ptLocal.x;
-  activeTouch.touch.screenPoint.y = ptLocal.y;
+  activeTouch.touch.screenPoint.x = ptScaled.x;
+  activeTouch.touch.screenPoint.y = ptScaled.y;
   activeTouch.touch.offsetPoint.x = ptLocal.x;
   activeTouch.touch.offsetPoint.y = ptLocal.y;
   activeTouch.touch.timestamp = static_cast<facebook::react::Float>(
