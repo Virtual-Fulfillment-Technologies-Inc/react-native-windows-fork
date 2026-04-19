@@ -176,10 +176,6 @@ class CompositionEventHandler : public std::enable_shared_from_this<CompositionE
   facebook::react::Cursor m_currentCursor{facebook::react::Cursor::Auto};
   winrt::Microsoft::UI::Input::InputCursor m_inputCursor{nullptr};
 
-  // Single-entry cache for GetTouchableViewsInPathToRoot to avoid repeated tree walks
-  facebook::react::Tag m_cachedEventPathTag{-1};
-  std::vector<winrt::Microsoft::ReactNative::ComponentView> m_cachedEventPath;
-
   winrt::event_token m_pointerPressedToken;
   winrt::event_token m_pointerReleasedToken;
   winrt::event_token m_pointerMovedToken;

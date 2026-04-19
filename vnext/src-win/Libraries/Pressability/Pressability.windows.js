@@ -481,7 +481,7 @@ export default class Pressability {
     const responderEventHandlers = {
       onStartShouldSetResponder: (): boolean => {
         const {disabled} = this._config;
-        return !disabled;
+        return disabled !== true; // falsy/undefined disabled => responder allowed
       },
 
       onResponderGrant: (event: GestureResponderEvent): void | boolean => {

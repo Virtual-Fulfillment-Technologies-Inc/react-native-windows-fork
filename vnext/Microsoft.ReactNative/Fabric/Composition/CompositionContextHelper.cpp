@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "CompositionContextHelper.h"
 #include <algorithm>
+#include <cassert>
 #include <vector>
 #if __has_include("Composition.Experimental.SystemCompositionContextHelper.g.cpp")
 #include "Composition.Experimental.SystemCompositionContextHelper.g.cpp"
@@ -442,6 +443,7 @@ struct CompVisualImpl {
         insertAfter.MoveNext();
       containerChildren.InsertAbove(compVisual, insertAfter.Current());
     }
+    assert(index <= m_childrenCache.size());
     if (index >= m_childrenCache.size()) {
       m_childrenCache.push_back(visual);
     } else {
@@ -462,7 +464,10 @@ struct CompVisualImpl {
   }
 
   winrt::Microsoft::ReactNative::Composition::Experimental::IVisual GetAt(uint32_t index) noexcept {
-    return m_childrenCache[index];
+    if (index < m_childrenCache.size()) {
+      return m_childrenCache[index];
+    }
+    return nullptr;
   }
 
   void SetClippingPath(ID2D1Geometry *clippingPath) noexcept {
