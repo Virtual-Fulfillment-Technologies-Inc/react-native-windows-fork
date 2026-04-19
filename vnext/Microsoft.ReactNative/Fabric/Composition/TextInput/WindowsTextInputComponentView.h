@@ -80,6 +80,7 @@ struct WindowsTextInputComponentView
       const winrt::Microsoft::ReactNative::Composition::Experimental::ICompositionContext &compContext,
       facebook::react::Tag tag,
       winrt::Microsoft::ReactNative::ReactContext const &reactContext);
+  ~WindowsTextInputComponentView();
 
   winrt::Microsoft::ReactNative::Composition::Experimental::IVisual createVisual() noexcept;
 
