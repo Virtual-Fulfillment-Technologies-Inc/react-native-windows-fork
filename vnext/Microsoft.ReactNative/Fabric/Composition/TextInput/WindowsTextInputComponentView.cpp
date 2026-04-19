@@ -699,10 +699,14 @@ void WindowsTextInputComponentView::OnPointerPressed(
         wParam |= (XBUTTON2 << 16);
         break;
     }
-    wParam = PointerRoutedEventArgsToMouseWParam(args);
+    wParam |= PointerRoutedEventArgsToMouseWParam(args);
   } else {
-    msg = WM_POINTERDOWN;
-    wParam = PointerPointToPointerWParam(pp);
+    if (IsDoubleClick()) {
+      msg = WM_LBUTTONDBLCLK;
+    } else {
+      msg = WM_LBUTTONDOWN;
+    }
+    wParam = PointerRoutedEventArgsToMouseWParam(args);
   }
 
   if (m_textServices && msg) {
@@ -764,10 +768,10 @@ void WindowsTextInputComponentView::OnPointerReleased(
         wParam |= (XBUTTON2 << 16);
         break;
     }
-    wParam = PointerRoutedEventArgsToMouseWParam(args);
+    wParam |= PointerRoutedEventArgsToMouseWParam(args);
   } else {
-    msg = WM_POINTERUP;
-    wParam = PointerPointToPointerWParam(pp);
+    msg = WM_LBUTTONUP;
+    wParam = PointerRoutedEventArgsToMouseWParam(args);
   }
 
   if (m_textServices && msg) {
@@ -817,23 +821,18 @@ void WindowsTextInputComponentView::OnPointerMoved(
       static_cast<LONG>(position.Y * m_layoutMetrics.pointScaleFactor)};
   lParam = static_cast<LPARAM>(POINTTOPOINTS(ptContainer));
 
-  if (pp.PointerDeviceType() == winrt::Microsoft::ReactNative::Composition::Input::PointerDeviceType::Mouse) {
-    msg = WM_MOUSEMOVE;
-    wParam = PointerRoutedEventArgsToMouseWParam(args);
-  } else {
-    msg = WM_POINTERUPDATE;
-    wParam = PointerPointToPointerWParam(pp);
-  }
+  msg = WM_MOUSEMOVE;
+  wParam = PointerRoutedEventArgsToMouseWParam(args);
 
   if (m_textServices) {
     LRESULT lresult;
     DrawBlock db(*this);
     auto hr = m_textServices->TxSendMessage(msg, static_cast<WPARAM>(wParam), static_cast<LPARAM>(lParam), &lresult);
     args.Handled(hr != S_FALSE);
-  }
 
-  m_textServices->OnTxSetCursor(
-      DVASPECT_CONTENT, -1, nullptr, nullptr, nullptr, nullptr, nullptr, ptContainer.x, ptContainer.y);
+    m_textServices->OnTxSetCursor(
+        DVASPECT_CONTENT, -1, nullptr, nullptr, nullptr, nullptr, nullptr, ptContainer.x, ptContainer.y);
+  }
 }
 
 void WindowsTextInputComponentView::OnPointerWheelChanged(
@@ -935,7 +934,7 @@ bool WindowsTextInputComponentView::ShouldSubmit(
         bool ctrlDown = (args.KeyboardSource().GetKeyState(winrt::Windows::System::VirtualKey::Control) &
                          winrt::Microsoft::UI::Input::VirtualKeyStates::Down) ==
             winrt::Microsoft::UI::Input::VirtualKeyStates::Down;
-        bool altDown = (args.KeyboardSource().GetKeyState(winrt::Windows::System::VirtualKey::Control) &
+        bool altDown = (args.KeyboardSource().GetKeyState(winrt::Windows::System::VirtualKey::Menu) &
                         winrt::Microsoft::UI::Input::VirtualKeyStates::Down) ==
             winrt::Microsoft::UI::Input::VirtualKeyStates::Down;
         bool metaDown = (args.KeyboardSource().GetKeyState(winrt::Windows::System::VirtualKey::LeftWindows) &
@@ -946,7 +945,7 @@ bool WindowsTextInputComponentView::ShouldSubmit(
                 winrt::Microsoft::UI::Input::VirtualKeyStates::Down;
         return (submitKeyEvent.shiftKey && shiftDown) || (submitKeyEvent.ctrlKey && ctrlDown) ||
             (submitKeyEvent.altKey && altDown) || (submitKeyEvent.metaKey && metaDown) ||
-            (!submitKeyEvent.shiftKey && !submitKeyEvent.altKey && !submitKeyEvent.metaKey && !submitKeyEvent.altKey &&
+            (!submitKeyEvent.shiftKey && !submitKeyEvent.ctrlKey && !submitKeyEvent.altKey && !submitKeyEvent.metaKey &&
              !shiftDown && !ctrlDown && !altDown && !metaDown);
       } else {
         shouldSubmit = false;
