@@ -1635,19 +1635,19 @@ void CompositionEventHandler::DispatchTouchEvent(
     bool shouldLeave = (eventType == TouchEventType::End && activeTouch.shouldLeaveWhenReleased) ||
         eventType == TouchEventType::Cancel;
     if (!shouldLeave) {
-      const auto &viewRegistry = fabricuiManager->GetViewRegistry();
-      facebook::react::Point ptLocal;
       auto *rootViewForHit = RootComponentView();
-      if (!rootViewForHit)
-        return;
-      auto targetTag = rootViewForHit->hitTest(pointerEvent.clientPoint, ptLocal);
-      if (targetTag != -1) {
-        auto targetComponentViewDescriptor = viewRegistry.componentViewDescriptorWithTag(targetTag);
-        targetView = FindClosestFabricManagedTouchableView(targetComponentViewDescriptor.view);
+      if (rootViewForHit) {
+        const auto &viewRegistry = fabricuiManager->GetViewRegistry();
+        facebook::react::Point ptLocal;
+        auto targetTag = rootViewForHit->hitTest(pointerEvent.clientPoint, ptLocal);
+        if (targetTag != -1) {
+          auto targetComponentViewDescriptor = viewRegistry.componentViewDescriptorWithTag(targetTag);
+          targetView = FindClosestFabricManagedTouchableView(targetComponentViewDescriptor.view);
+        }
       }
     }
 
-    auto handler = [&activeTouch, eventType, &pointerEvent](
+    auto handler = [this, &activeTouch, eventType, &pointerEvent](
                        std::vector<winrt::Microsoft::ReactNative::ComponentView> &eventPathViews) {
       switch (eventType) {
         case TouchEventType::Start:
