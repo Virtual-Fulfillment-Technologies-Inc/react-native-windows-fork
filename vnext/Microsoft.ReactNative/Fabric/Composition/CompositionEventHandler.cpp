@@ -1548,11 +1548,22 @@ bool CompositionEventHandler::IsPointerWithinInitialTree(const ActiveTouch &acti
     return false;
 
   auto initialTag = initialComponentView.Tag();
-  auto currentView = fabricuiManager->GetViewRegistry().componentViewDescriptorWithTag(currentTag).view;
+  auto &viewRegistry = fabricuiManager->GetViewRegistry();
+  auto currentView = viewRegistry.componentViewDescriptorWithTag(currentTag).view;
   while (currentView) {
     if (currentView.Tag() == initialTag)
       return true;
     currentView = currentView.Parent();
+  }
+
+  // Fallback: if the pointer drifted spatially but the original target
+  // is still structurally within the initial tree, honor the tap.
+  // This provides touch-device tolerance for finger drift.
+  auto targetView = viewRegistry.componentViewDescriptorWithTag(activeTouch.touch.target).view;
+  while (targetView) {
+    if (targetView.Tag() == initialTag)
+      return true;
+    targetView = targetView.Parent();
   }
 
   return false;
