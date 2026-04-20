@@ -250,7 +250,10 @@ void CompositionEventHandler::Initialize() noexcept {
           if (strongThis->SurfaceId() == -1)
             return;
 
-          auto focusedComponent = strongThis->RootComponentView().GetFocusedComponent();
+          auto *rootView = strongThis->RootComponentView();
+          if (!rootView)
+            return;
+          auto focusedComponent = rootView->GetFocusedComponent();
           auto keyboardSource = winrt::make<CompositionInputKeyboardSource>(source);
           auto keyArgs =
               winrt::make<winrt::Microsoft::ReactNative::Composition::Input::implementation::KeyRoutedEventArgs>(
@@ -276,7 +279,10 @@ void CompositionEventHandler::Initialize() noexcept {
           if (strongThis->SurfaceId() == -1)
             return;
 
-          auto focusedComponent = strongThis->RootComponentView().GetFocusedComponent();
+          auto *rootView = strongThis->RootComponentView();
+          if (!rootView)
+            return;
+          auto focusedComponent = rootView->GetFocusedComponent();
           auto keyboardSource = winrt::make<CompositionInputKeyboardSource>(source);
           auto keyArgs =
               winrt::make<winrt::Microsoft::ReactNative::Composition::Input::implementation::KeyRoutedEventArgs>(
@@ -303,7 +309,10 @@ void CompositionEventHandler::Initialize() noexcept {
               if (strongThis->SurfaceId() == -1)
                 return;
 
-              auto focusedComponent = strongThis->RootComponentView().GetFocusedComponent();
+              auto *rootView = strongThis->RootComponentView();
+              if (!rootView)
+                return;
+              auto focusedComponent = rootView->GetFocusedComponent();
               auto keyboardSource = winrt::make<CompositionInputKeyboardSource>(source);
               auto charArgs = winrt::make<
                   winrt::Microsoft::ReactNative::Composition::Input::implementation::CharacterReceivedRoutedEventArgs>(
@@ -330,7 +339,10 @@ void CompositionEventHandler::Initialize() noexcept {
               if (strongThis->SurfaceId() == -1)
                 return;
 
-              auto focusedComponent = strongThis->RootComponentView().GetFocusedComponent();
+              auto *rootView = strongThis->RootComponentView();
+              if (!rootView)
+                return;
+              auto focusedComponent = rootView->GetFocusedComponent();
               if (focusedComponent) {
                 auto tag =
                     winrt::get_self<winrt::Microsoft::ReactNative::implementation::ComponentView>(focusedComponent)
@@ -380,10 +392,13 @@ facebook::react::SurfaceId CompositionEventHandler::SurfaceId() const noexcept {
   return -1;
 }
 
-winrt::Microsoft::ReactNative::Composition::implementation::RootComponentView &
+winrt::Microsoft::ReactNative::Composition::implementation::RootComponentView *
 CompositionEventHandler::RootComponentView() const noexcept {
   auto island = m_wkRootView.get();
-  return *winrt::get_self<winrt::Microsoft::ReactNative::implementation::ReactNativeIsland>(island)->GetComponentView();
+  if (!island) {
+    return nullptr;
+  }
+  return winrt::get_self<winrt::Microsoft::ReactNative::implementation::ReactNativeIsland>(island)->GetComponentView();
 }
 
 void CompositionEventHandler::onPointerWheelChanged(
@@ -398,8 +413,11 @@ void CompositionEventHandler::onPointerWheelChanged(
 
     // In the case of a sub rootview, we may have a non-zero origin.  hitTest takes a pt in the parent coords, so we
     // need to apply the current origin
-    ptScaled += RootComponentView().layoutMetrics().frame.origin;
-    auto tag = RootComponentView().hitTest(ptScaled, ptLocal);
+    auto *rootView = RootComponentView();
+    if (!rootView)
+      return;
+    ptScaled += rootView->layoutMetrics().frame.origin;
+    auto tag = rootView->hitTest(ptScaled, ptLocal);
 
     if (tag == -1)
       return;
@@ -553,7 +571,10 @@ int64_t CompositionEventHandler::SendMessage(HWND hwnd, uint32_t msg, uint64_t w
     case WM_CHAR:
     case WM_SYSCHAR: {
       if (auto strongRootView = m_wkRootView.get()) {
-        auto focusedComponent = RootComponentView().GetFocusedComponent();
+        auto *rootView = RootComponentView();
+        if (!rootView)
+          break;
+        auto focusedComponent = rootView->GetFocusedComponent();
         auto keyboardSource = winrt::make<CompositionKeyboardSource>(this);
         auto args = winrt::make<
             winrt::Microsoft::ReactNative::Composition::Input::implementation::CharacterReceivedRoutedEventArgs>(
@@ -576,7 +597,10 @@ int64_t CompositionEventHandler::SendMessage(HWND hwnd, uint32_t msg, uint64_t w
     case WM_SYSKEYDOWN:
     case WM_SYSKEYUP: {
       if (auto strongRootView = m_wkRootView.get()) {
-        auto focusedComponent = RootComponentView().GetFocusedComponent();
+        auto *rootView = RootComponentView();
+        if (!rootView)
+          break;
+        auto focusedComponent = rootView->GetFocusedComponent();
         auto keyboardSource = winrt::make<CompositionKeyboardSource>(this);
         auto args = winrt::make<winrt::Microsoft::ReactNative::Composition::Input::implementation::KeyRoutedEventArgs>(
             focusedComponent
@@ -608,9 +632,12 @@ int64_t CompositionEventHandler::SendMessage(HWND hwnd, uint32_t msg, uint64_t w
 
 void CompositionEventHandler::onKeyDown(
     const winrt::Microsoft::ReactNative::Composition::Input::KeyRoutedEventArgs &args) noexcept {
-  RootComponentView().UseKeyboardForProgrammaticFocus(true);
+  auto *rootView = RootComponentView();
+  if (!rootView)
+    return;
+  rootView->UseKeyboardForProgrammaticFocus(true);
 
-  if (auto focusedComponent = RootComponentView().GetFocusedComponent()) {
+  if (auto focusedComponent = rootView->GetFocusedComponent()) {
     winrt::get_self<winrt::Microsoft::ReactNative::implementation::ComponentView>(focusedComponent)->OnKeyDown(args);
 
     if (args.Handled())
@@ -633,7 +660,7 @@ void CompositionEventHandler::onKeyDown(
   }
 
   if (!fCtrl && args.Key() == winrt::Windows::System::VirtualKey::Tab) {
-    if (RootComponentView().TryMoveFocus(!fShift, winrt::Microsoft::ReactNative::FocusState::Keyboard)) {
+    if (rootView->TryMoveFocus(!fShift, winrt::Microsoft::ReactNative::FocusState::Keyboard)) {
       args.Handled(true);
     }
 
@@ -643,9 +670,12 @@ void CompositionEventHandler::onKeyDown(
 
 void CompositionEventHandler::onKeyUp(
     const winrt::Microsoft::ReactNative::Composition::Input::KeyRoutedEventArgs &args) noexcept {
-  RootComponentView().UseKeyboardForProgrammaticFocus(true);
+  auto *rootView = RootComponentView();
+  if (!rootView)
+    return;
+  rootView->UseKeyboardForProgrammaticFocus(true);
 
-  if (auto focusedComponent = RootComponentView().GetFocusedComponent()) {
+  if (auto focusedComponent = rootView->GetFocusedComponent()) {
     winrt::get_self<winrt::Microsoft::ReactNative::implementation::ComponentView>(focusedComponent)->OnKeyUp(args);
 
     if (args.Handled())
@@ -655,7 +685,10 @@ void CompositionEventHandler::onKeyUp(
 
 void CompositionEventHandler::onCharacterReceived(
     const winrt::Microsoft::ReactNative::Composition::Input::CharacterReceivedRoutedEventArgs &args) noexcept {
-  if (auto focusedComponent = RootComponentView().GetFocusedComponent()) {
+  auto *rootView = RootComponentView();
+  if (!rootView)
+    return;
+  if (auto focusedComponent = rootView->GetFocusedComponent()) {
     winrt::get_self<winrt::Microsoft::ReactNative::implementation::ComponentView>(focusedComponent)
         ->OnCharacterReceived(args);
 
@@ -1028,7 +1061,10 @@ void CompositionEventHandler::getTargetPointerArgs(
 
   // In the case of a sub rootview, we may have a non-zero origin.  hitTest takes a pt in the parent coords, so we need
   // to apply the current origin
-  ptScaled += RootComponentView().layoutMetrics().frame.origin;
+  auto *rootView = RootComponentView();
+  if (!rootView)
+    return;
+  ptScaled += rootView->layoutMetrics().frame.origin;
 
   if (std::find(m_capturedPointers.begin(), m_capturedPointers.end(), pointerId) != m_capturedPointers.end()) {
     assert(m_pointerCapturingComponentTag != -1);
@@ -1042,7 +1078,7 @@ void CompositionEventHandler::getTargetPointerArgs(
       ptLocal.y = ptScaled.y - (clientRect.top / strongRootView.ScaleFactor());
     }
   } else {
-    tag = RootComponentView().hitTest(ptScaled, ptLocal);
+    tag = rootView->hitTest(ptScaled, ptLocal);
   }
 }
 
@@ -1101,10 +1137,11 @@ void CompositionEventHandler::onPointerMoved(
 
     auto handler = [&, targetView, pointerEvent, isActiveTouch](
                        std::vector<winrt::Microsoft::ReactNative::ComponentView> &eventPathViews) {
+      auto *rootViewForEmitter = RootComponentView();
       const auto eventEmitter = targetView
           ? winrt::get_self<winrt::Microsoft::ReactNative::implementation::ComponentView>(targetView)
                 ->eventEmitterAtPoint(pointerEvent.offsetPoint)
-          : RootComponentView().eventEmitterAtPoint(pointerEvent.offsetPoint);
+          : (rootViewForEmitter ? rootViewForEmitter->eventEmitterAtPoint(pointerEvent.offsetPoint) : nullptr);
 
       if (eventEmitter != nullptr) {
         eventEmitter->onPointerMove(pointerEvent);
@@ -1130,7 +1167,10 @@ void CompositionEventHandler::ClearAllHoveredForPointer(const facebook::react::P
   // events. If we get null for the targetView, that means that the mouse is no over any components, so we have no
   // element to send the move event to. However we need to send something so that any previously hovered elements
   // are no longer hovered.
-  auto children = RootComponentView().Children();
+  auto *rootView = RootComponentView();
+  if (!rootView)
+    return;
+  auto children = rootView->Children();
   if (auto size = children.Size()) {
     auto firstChild = children.GetAt(0);
     if (auto childEventEmitter =
@@ -1175,11 +1215,14 @@ void CompositionEventHandler::onPointerPressed(
     winrt::Windows::System::VirtualKeyModifiers keyModifiers) noexcept {
   namespace Composition = winrt::Microsoft::ReactNative::Composition;
 
-  RootComponentView().UseKeyboardForProgrammaticFocus(false);
+  auto *rootView = RootComponentView();
+  if (!rootView)
+    return;
+  rootView->UseKeyboardForProgrammaticFocus(false);
 
   // Clears any active text selection when left pointer is pressed
   if (pointerPoint.Properties().PointerUpdateKind() != Composition::Input::PointerUpdateKind::RightButtonPressed) {
-    RootComponentView().ClearCurrentTextSelection();
+    rootView->ClearCurrentTextSelection();
   }
 
   PointerId pointerId = pointerPoint.PointerId();
@@ -1273,7 +1316,10 @@ void CompositionEventHandler::onPointerReleased(
     winrt::Windows::System::VirtualKeyModifiers keyModifiers) noexcept {
   int pointerId = pointerPoint.PointerId();
 
-  RootComponentView().UseKeyboardForProgrammaticFocus(false);
+  auto *rootView = RootComponentView();
+  if (!rootView)
+    return;
+  rootView->UseKeyboardForProgrammaticFocus(false);
 
   auto activeTouch = std::find_if(m_activeTouches.begin(), m_activeTouches.end(), [pointerId](const auto &pair) {
     return pair.second.touch.identifier == pointerId;
@@ -1514,7 +1560,10 @@ void CompositionEventHandler::DispatchTouchEvent(
     if (!shouldLeave) {
       const auto &viewRegistry = fabricuiManager->GetViewRegistry();
       facebook::react::Point ptLocal;
-      auto targetTag = RootComponentView().hitTest(pointerEvent.clientPoint, ptLocal);
+      auto *rootViewForHit = RootComponentView();
+      if (!rootViewForHit)
+        return;
+      auto targetTag = rootViewForHit->hitTest(pointerEvent.clientPoint, ptLocal);
       if (targetTag != -1) {
         auto targetComponentViewDescriptor = viewRegistry.componentViewDescriptorWithTag(targetTag);
         targetView = FindClosestFabricManagedTouchableView(targetComponentViewDescriptor.view);

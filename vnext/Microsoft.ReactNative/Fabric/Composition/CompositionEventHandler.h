@@ -79,7 +79,7 @@ class CompositionEventHandler : public std::enable_shared_from_this<CompositionE
   bool releasePointerCapture(PointerId pointerId, facebook::react::Tag tag) noexcept;
 
   facebook::react::SurfaceId SurfaceId() const noexcept;
-  winrt::Microsoft::ReactNative::Composition::implementation::RootComponentView &RootComponentView() const noexcept;
+  winrt::Microsoft::ReactNative::Composition::implementation::RootComponentView *RootComponentView() const noexcept;
 
   enum class UITouchType {
     Mouse,
