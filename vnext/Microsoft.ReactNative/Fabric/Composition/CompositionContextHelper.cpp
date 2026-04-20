@@ -458,9 +458,8 @@ struct CompVisualImpl {
     auto compVisual = TTypeRedirects::CompositionContextHelper::InnerVisual(visual);
     auto containerChildren = InnerVisual().as<typename TTypeRedirects::ContainerVisual>().Children();
     containerChildren.Remove(compVisual);
-    auto it = std::find_if(m_childrenCache.begin(), m_childrenCache.end(), [&visual](const auto &cached) {
-      return cached == visual;
-    });
+    auto it = std::find_if(
+        m_childrenCache.begin(), m_childrenCache.end(), [&visual](const auto &cached) { return cached == visual; });
     if (it != m_childrenCache.end()) {
       m_childrenCache.erase(it);
     }

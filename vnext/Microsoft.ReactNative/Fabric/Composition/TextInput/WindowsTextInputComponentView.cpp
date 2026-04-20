@@ -14,11 +14,11 @@
 #include <react/renderer/graphics/HostPlatformColor.h>
 #include <react/renderer/textlayoutmanager/WindowsTextLayoutManager.h>
 #include <tom.h>
-#include <mutex>
 #include <unicode.h>
 #include <winrt/Microsoft.UI.Input.h>
 #include <winrt/Windows.System.h>
 #include <winrt/Windows.UI.h>
+#include <mutex>
 #include "../Composition.Input.h"
 #include "../CompositionHelpers.h"
 #include "../RootComponentView.h"
