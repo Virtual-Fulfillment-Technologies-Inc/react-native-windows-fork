@@ -470,6 +470,7 @@ struct CompVisualImpl {
     if (index < m_childrenCache.size()) {
       return m_childrenCache[index];
     }
+    assert(false && "GetAt called with out-of-range index");
     return nullptr;
   }
 
