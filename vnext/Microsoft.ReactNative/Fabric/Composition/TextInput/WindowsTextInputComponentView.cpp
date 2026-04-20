@@ -698,17 +698,22 @@ WPARAM PointerRoutedEventArgsToMouseWParam(
   return wParam;
 }
 
-bool WindowsTextInputComponentView::IsDoubleClick() {
+bool WindowsTextInputComponentView::IsDoubleClick(uint32_t pointerId) {
   using namespace std::chrono;
 
   auto now = steady_clock::now();
-  auto duration = duration_cast<milliseconds>(now - m_lastClickTime).count();
+  auto it = m_lastClickTimeByPointer.find(pointerId);
+  bool isDouble = false;
 
-  const int DOUBLE_CLICK_TIME_MS = ::GetDoubleClickTime();
+  if (it != m_lastClickTimeByPointer.end()) {
+    auto duration = duration_cast<milliseconds>(now - it->second).count();
+    isDouble = (duration < ::GetDoubleClickTime());
+    it->second = now;
+  } else {
+    m_lastClickTimeByPointer[pointerId] = now;
+  }
 
-  m_lastClickTime = now;
-
-  return (duration < DOUBLE_CLICK_TIME_MS);
+  return isDouble;
 }
 
 void WindowsTextInputComponentView::OnPointerPressed(
@@ -727,7 +732,7 @@ void WindowsTextInputComponentView::OnPointerPressed(
   if (pp.PointerDeviceType() == winrt::Microsoft::ReactNative::Composition::Input::PointerDeviceType::Mouse) {
     switch (pp.Properties().PointerUpdateKind()) {
       case winrt::Microsoft::ReactNative::Composition::Input::PointerUpdateKind::LeftButtonPressed:
-        if (IsDoubleClick()) {
+        if (IsDoubleClick(pp.PointerId())) {
           msg = WM_LBUTTONDBLCLK;
         } else {
           msg = WM_LBUTTONDOWN;
@@ -750,7 +755,7 @@ void WindowsTextInputComponentView::OnPointerPressed(
     }
     wParam |= PointerRoutedEventArgsToMouseWParam(args);
   } else {
-    if (IsDoubleClick()) {
+    if (IsDoubleClick(pp.PointerId())) {
       msg = WM_LBUTTONDBLCLK;
     } else {
       msg = WM_LBUTTONDOWN;

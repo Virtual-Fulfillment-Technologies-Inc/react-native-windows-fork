@@ -865,30 +865,44 @@ struct CompScrollerVisual : winrt::implements<
   void InsertAt(
       const winrt::Microsoft::ReactNative::Composition::Experimental::IVisual &visual,
       uint32_t index) noexcept {
+    assert(index <= m_childrenCache.size());
+    if (index > m_childrenCache.size()) {
+      index = static_cast<uint32_t>(m_childrenCache.size());
+    }
     auto containerChildren = m_contentVisual.Children();
     auto compVisual = TTypeRedirects::CompositionContextHelper::InnerVisual(visual);
     if (index == 0) {
       containerChildren.InsertAtBottom(compVisual);
-      return;
+    } else {
+      auto insertAfter = containerChildren.First();
+      for (uint32_t i = 1; i < index; i++)
+        insertAfter.MoveNext();
+      containerChildren.InsertAbove(compVisual, insertAfter.Current());
     }
-    auto insertAfter = containerChildren.First();
-    for (uint32_t i = 1; i < index; i++)
-      insertAfter.MoveNext();
-    containerChildren.InsertAbove(compVisual, insertAfter.Current());
+    if (index >= m_childrenCache.size()) {
+      m_childrenCache.push_back(visual);
+    } else {
+      m_childrenCache.insert(m_childrenCache.begin() + index, visual);
+    }
   }
 
   void Remove(const winrt::Microsoft::ReactNative::Composition::Experimental::IVisual &visual) noexcept {
     auto compVisual = TTypeRedirects::CompositionContextHelper::InnerVisual(visual);
     auto containerChildren = m_contentVisual.Children();
     containerChildren.Remove(compVisual);
+    auto it = std::find_if(
+        m_childrenCache.begin(), m_childrenCache.end(), [&visual](const auto &cached) { return cached == visual; });
+    if (it != m_childrenCache.end()) {
+      m_childrenCache.erase(it);
+    }
   }
 
   winrt::Microsoft::ReactNative::Composition::Experimental::IVisual GetAt(uint32_t index) noexcept {
-    auto containerChildren = m_visual.as<typename TTypeRedirects::ContainerVisual>().Children();
-    auto it = containerChildren.First();
-    for (uint32_t i = 0; i < index; i++)
-      it.MoveNext();
-    return TTypeRedirects::CompositionContextHelper::CreateVisual(it.Current());
+    if (index < m_childrenCache.size()) {
+      return m_childrenCache[index];
+    }
+    assert(false && "GetAt called with out-of-range index");
+    return nullptr;
   }
 
   void Brush(const winrt::Microsoft::ReactNative::Composition::Experimental::IBrush &brush) noexcept {
@@ -1434,6 +1448,7 @@ struct CompScrollerVisual : winrt::implements<
   typename TTypeRedirects::SpriteVisual m_contentVisual{nullptr};
   typename TTypeRedirects::InteractionTracker m_interactionTracker{nullptr};
   typename TTypeRedirects::VisualInteractionSource m_visualInteractionSource{nullptr};
+  std::vector<winrt::Microsoft::ReactNative::Composition::Experimental::IVisual> m_childrenCache;
 };
 using WindowsCompScrollerVisual = CompScrollerVisual<WindowsTypeRedirects>;
 using MicrosoftCompScrollerVisual = CompScrollerVisual<MicrosoftTypeRedirects>;

@@ -399,7 +399,9 @@ CompositionEventHandler::RootComponentView() const noexcept {
   if (!island) {
     return nullptr;
   }
-  return winrt::get_self<winrt::Microsoft::ReactNative::implementation::ReactNativeIsland>(island)->GetComponentView();
+  return winrt::get_self<winrt::Microsoft::ReactNative::implementation::ReactNativeIsland>(island)
+      ->GetComponentView()
+      .get();
 }
 
 void CompositionEventHandler::onPointerWheelChanged(
@@ -1234,10 +1236,14 @@ void CompositionEventHandler::onPointerPressed(
   if (staleTouch != m_activeTouches.end()) {
     // A previous pointer with this ID was never properly released (e.g., app lost focus,
     // pointer left window). Cancel the stale touch and clean it up so the new press can proceed.
-    if (staleTouch->second.eventEmitter) {
-      DispatchSynthesizedTouchCancelForActiveTouch(staleTouch->second, pointerPoint, keyModifiers);
-    }
+    // Copy and erase before dispatching to avoid holding a reference into m_activeTouches
+    // across DispatchSynthesizedTouchCancelForActiveTouch, which calls HandleIncomingPointerEvent
+    // and iterates m_activeTouches internally.
+    ActiveTouch staleTouchCopy = std::move(staleTouch->second);
     m_activeTouches.erase(staleTouch);
+    if (staleTouchCopy.eventEmitter) {
+      DispatchSynthesizedTouchCancelForActiveTouch(staleTouchCopy, pointerPoint, keyModifiers);
+    }
   }
 
   const auto eventType = TouchEventType::Start;

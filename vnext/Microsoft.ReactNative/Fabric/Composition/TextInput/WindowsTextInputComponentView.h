@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <unordered_map>
 #include "Composition.WindowsTextInputComponentView.g.h"
 #include <ReactContext.h>
 #include <Windows.Graphics.DirectX.Direct3D11.interop.h>
@@ -74,7 +75,7 @@ struct WindowsTextInputComponentView
   std::optional<std::string> getAccessiblityValue() noexcept override;
   void setAcccessiblityValue(std::string &&value) noexcept override;
   bool getAcccessiblityIsReadOnly() noexcept override;
-  bool IsDoubleClick();
+  bool IsDoubleClick(uint32_t pointerId);
 
   WindowsTextInputComponentView(
       const winrt::Microsoft::ReactNative::Composition::Experimental::ICompositionContext &compContext,
@@ -153,7 +154,7 @@ struct WindowsTextInputComponentView
   DWORD m_propBits{0};
   HCURSOR m_hcursor{nullptr};
   POINT m_caretPosition{0, 0};
-  std::chrono::steady_clock::time_point m_lastClickTime{};
+  std::unordered_map<uint32_t, std::chrono::steady_clock::time_point> m_lastClickTimeByPointer;
   std::vector<facebook::react::CompWindowsTextInputSubmitKeyEventsStruct> m_submitKeyEvents;
 };
 
