@@ -1534,11 +1534,25 @@ bool CompositionEventHandler::IsPointerWithinInitialTree(const ActiveTouch &acti
   if (!initialComponentView)
     return false;
 
-  auto initialViewSet = GetTouchableViewsInPathToRoot(initialComponentView);
+  auto *rootView = RootComponentView();
+  if (!rootView)
+    return false;
 
-  for (const auto &view : initialViewSet) {
-    if (view.Tag() == activeTouch.touch.target)
+  facebook::react::Point ptLocal;
+  auto currentTag = rootView->hitTest(activeTouch.touch.pagePoint, ptLocal);
+  if (currentTag == -1)
+    return false;
+
+  auto fabricuiManager = ::Microsoft::ReactNative::FabricUIManager::FromProperties(m_context.Properties());
+  if (!fabricuiManager)
+    return false;
+
+  auto initialTag = initialComponentView.Tag();
+  auto currentView = fabricuiManager->GetViewRegistry().componentViewDescriptorWithTag(currentTag).view;
+  while (currentView) {
+    if (currentView.Tag() == initialTag)
       return true;
+    currentView = currentView.Parent();
   }
 
   return false;

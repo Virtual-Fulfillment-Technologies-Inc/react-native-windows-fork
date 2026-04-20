@@ -1020,15 +1020,9 @@ bool ComponentView::anyHitTestHelper(
     return false;
   }
 
-  // Collect children into a local vector to avoid repeated O(n) IVector::GetAt calls
-  std::vector<winrt::Microsoft::ReactNative::ComponentView> children;
-  children.reserve(size);
-  for (auto const &child : m_children) {
-    children.push_back(child);
-  }
-
-  for (auto it = children.rbegin(); it != children.rend(); ++it) {
-    targetTag = winrt::get_self<winrt::Microsoft::ReactNative::implementation::ComponentView>(*it)
+  // m_children is backed by single_threaded_vector (std::vector), so GetAt is O(1)
+  for (uint32_t i = size; i > 0; --i) {
+    targetTag = winrt::get_self<winrt::Microsoft::ReactNative::implementation::ComponentView>(m_children.GetAt(i - 1))
                     ->hitTest(ptContent, localPt);
     if (targetTag != -1) {
       return true;

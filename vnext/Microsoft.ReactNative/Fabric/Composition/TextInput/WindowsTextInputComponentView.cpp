@@ -1884,9 +1884,7 @@ WindowsTextInputComponentView::createVisual() noexcept {
   winrt::com_ptr<::IUnknown> spUnk;
   winrt::check_hresult(g_pfnCreateTextServices(nullptr, m_textHost.get(), spUnk.put()));
   spUnk.as(m_textServices);
-  if (!m_textServices) {
-    return nullptr;
-  }
+  winrt::check_bool(m_textServices != nullptr);
 
   LRESULT res;
   winrt::check_hresult(m_textServices->TxSendMessage(EM_SETTEXTMODE, TM_PLAINTEXT, 0, &res));

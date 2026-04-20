@@ -433,6 +433,10 @@ struct CompVisualImpl {
   void InsertAt(
       const winrt::Microsoft::ReactNative::Composition::Experimental::IVisual &visual,
       uint32_t index) noexcept {
+    assert(index <= m_childrenCache.size());
+    if (index > m_childrenCache.size()) {
+      index = static_cast<uint32_t>(m_childrenCache.size());
+    }
     auto containerChildren = InnerVisual().as<typename TTypeRedirects::ContainerVisual>().Children();
     auto compVisual = TTypeRedirects::CompositionContextHelper::InnerVisual(visual);
     if (index == 0) {
@@ -443,7 +447,6 @@ struct CompVisualImpl {
         insertAfter.MoveNext();
       containerChildren.InsertAbove(compVisual, insertAfter.Current());
     }
-    assert(index <= m_childrenCache.size());
     if (index >= m_childrenCache.size()) {
       m_childrenCache.push_back(visual);
     } else {
