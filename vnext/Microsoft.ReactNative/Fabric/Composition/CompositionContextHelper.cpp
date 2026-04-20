@@ -3,6 +3,7 @@
 #include "CompositionContextHelper.h"
 #include <algorithm>
 #include <cassert>
+#include <exception>
 #include <vector>
 #if __has_include("Composition.Experimental.SystemCompositionContextHelper.g.cpp")
 #include "Composition.Experimental.SystemCompositionContextHelper.g.cpp"
@@ -433,9 +434,8 @@ struct CompVisualImpl {
   void InsertAt(
       const winrt::Microsoft::ReactNative::Composition::Experimental::IVisual &visual,
       uint32_t index) noexcept {
-    assert(index <= m_childrenCache.size());
     if (index > m_childrenCache.size()) {
-      index = static_cast<uint32_t>(m_childrenCache.size());
+      std::terminate();
     }
     auto containerChildren = InnerVisual().as<typename TTypeRedirects::ContainerVisual>().Children();
     auto compVisual = TTypeRedirects::CompositionContextHelper::InnerVisual(visual);
@@ -865,9 +865,8 @@ struct CompScrollerVisual : winrt::implements<
   void InsertAt(
       const winrt::Microsoft::ReactNative::Composition::Experimental::IVisual &visual,
       uint32_t index) noexcept {
-    assert(index <= m_childrenCache.size());
     if (index > m_childrenCache.size()) {
-      index = static_cast<uint32_t>(m_childrenCache.size());
+      std::terminate();
     }
     auto containerChildren = m_contentVisual.Children();
     auto compVisual = TTypeRedirects::CompositionContextHelper::InnerVisual(visual);
