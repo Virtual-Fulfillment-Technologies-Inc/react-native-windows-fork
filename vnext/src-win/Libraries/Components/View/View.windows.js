@@ -143,7 +143,7 @@ component View(
   }
 
   if (tabIndex !== undefined) {
-    processedProps.focusable = tabIndex >= 0;
+    processedProps.focusable = !tabIndex;
   }
 
   if (

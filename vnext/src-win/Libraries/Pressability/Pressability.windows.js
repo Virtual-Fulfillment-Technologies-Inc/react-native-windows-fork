@@ -481,7 +481,7 @@ export default class Pressability {
     const responderEventHandlers = {
       onStartShouldSetResponder: (): boolean => {
         const {disabled} = this._config;
-        return disabled !== true; // falsy/undefined disabled => responder allowed
+        return !disabled ?? true;
       },
 
       onResponderGrant: (event: GestureResponderEvent): void | boolean => {
@@ -731,7 +731,7 @@ export default class Pressability {
                     );
                     if (delayHoverOut > 0) {
                       event.persist();
-                      this._hoverOutDelayTimeout = setTimeout(() => {
+                      this._hoverInDelayTimeout = setTimeout(() => {
                         onHoverOut(event);
                       }, delayHoverOut);
                     } else {
