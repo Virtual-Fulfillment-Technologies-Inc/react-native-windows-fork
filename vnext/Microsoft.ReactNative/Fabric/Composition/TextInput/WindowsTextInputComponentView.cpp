@@ -755,12 +755,10 @@ void WindowsTextInputComponentView::OnPointerPressed(
     }
     wParam |= PointerRoutedEventArgsToMouseWParam(args);
   } else {
-    if (IsDoubleClick(pp.PointerId())) {
-      msg = WM_LBUTTONDBLCLK;
-    } else {
-      msg = WM_LBUTTONDOWN;
-    }
-    wParam = PointerRoutedEventArgsToMouseWParam(args);
+    msg = WM_POINTERDOWN;
+    wParam = PointerPointToPointerWParam(pp);
+    auto screenPt = LocalToScreen(position);
+    lParam = MAKELPARAM(static_cast<SHORT>(screenPt.X), static_cast<SHORT>(screenPt.Y));
   }
 
   if (m_textServices && msg) {
@@ -824,8 +822,10 @@ void WindowsTextInputComponentView::OnPointerReleased(
     }
     wParam |= PointerRoutedEventArgsToMouseWParam(args);
   } else {
-    msg = WM_LBUTTONUP;
-    wParam = PointerRoutedEventArgsToMouseWParam(args);
+    msg = WM_POINTERUP;
+    wParam = PointerPointToPointerWParam(pp);
+    auto screenPt = LocalToScreen(position);
+    lParam = MAKELPARAM(static_cast<SHORT>(screenPt.X), static_cast<SHORT>(screenPt.Y));
   }
 
   if (m_textServices && msg) {
@@ -875,8 +875,15 @@ void WindowsTextInputComponentView::OnPointerMoved(
       static_cast<LONG>(position.Y * m_layoutMetrics.pointScaleFactor)};
   lParam = static_cast<LPARAM>(POINTTOPOINTS(ptContainer));
 
-  msg = WM_MOUSEMOVE;
-  wParam = PointerRoutedEventArgsToMouseWParam(args);
+  if (pp.PointerDeviceType() == winrt::Microsoft::ReactNative::Composition::Input::PointerDeviceType::Mouse) {
+    msg = WM_MOUSEMOVE;
+    wParam = PointerRoutedEventArgsToMouseWParam(args);
+  } else {
+    msg = WM_POINTERUPDATE;
+    wParam = PointerPointToPointerWParam(pp);
+    auto screenPt = LocalToScreen(position);
+    lParam = MAKELPARAM(static_cast<SHORT>(screenPt.X), static_cast<SHORT>(screenPt.Y));
+  }
 
   if (m_textServices) {
     LRESULT lresult;
